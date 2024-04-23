@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from pymongo import MongoClient
 from farm import Farm
+from farmDao import FarmDao
 import datetime
 from bson.objectid import ObjectId
 
@@ -39,26 +40,19 @@ def health_check():
 def list_farms():
     print("List of farms")
     print(request.json)
-    try:
-        all_users = list(farm_collection.find())
-        for user in all_users:
-            user["_id"] = str(user["_id"])
-        return jsonify(all_users)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    
+    farmDao = FarmDao(db)
+    
+    return farmDao.list_farms()
+
     
 @app.route("/farm/<id>", methods=["GET"])
 def get_farm(id):
     print("Get farm")
-    try:
-        farm = farm_collection.find_one({"_id": ObjectId(id)})
-        if farm is None:
-            return jsonify({"error": "Farm not found"}), 404
-        
-        farm["_id"] = str(farm["_id"])
-        return jsonify(farm)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    
+    farmDao = FarmDao(db)
+
+    return farmDao.get_farm_by_id(id)
 
 if __name__ == "__main__":
     app.run(port=5001) # port for the farm server (5001)
