@@ -10,7 +10,7 @@ this is used to check if the farm server is running.
 def health_check():
     return 'OK'
 
-@app.route("/farm/list", methods=["POST"])
+@app.route("/farm/list", methods=["GET", "POST"])
 def list_farms():
     print("List of farms")
     print(request.json)
