@@ -31,19 +31,23 @@ this is used to check if the farm server is running.
 def health_check():
     return 'OK'
 
-# def insert_farm():
-#     test_farm = Farm("1", "Farm1", "Farm1 description", "Farm1 location", "Farm1 area", 20, "Farm1 owner", "01-01-2024", "01-02-2024", "Farm1 contact", "Farm1 farm_type", 3.0)
-#     farm_collection.insert_one(test_farm.__dict__)
+def insert_farm():
+    test_farm = Farm("3", "Farm3", "Farm3 description", "Farm3 location", "Farm3 area", 12, "Farm3 owner", "Farm3 contact", "Farm3 farm_type", 4.4)
+    farm_collection.insert_one(test_farm.__dict__)
 
 
-@app.route("/farm/list", methods=["GET", "POST"])
+@app.route("/farm/list", methods=["GET"])
 def list_farms():
     print("List of farms")
-    print(request.json)
+    # print(request.json)
     
     farmDao = FarmDao(db)
     
-    return farmDao.list_farms()
+    farmlist = farmDao.list_farms()
+
+    # print(farmlist)
+
+    return farmlist
 
     
 @app.route("/farm/<id>", methods=["GET"])
@@ -54,5 +58,6 @@ def get_farm(id):
 
     return farmDao.get_farm_by_id(id)
 
+
 if __name__ == "__main__":
-    app.run(port=5001) # port for the farm server (5001)
+    app.run(port=5003) # port for the farm server (5001)

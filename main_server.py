@@ -30,7 +30,7 @@ def run_farm(subpath):
     }   
 
     farm_url = f'http://localhost:{farm_port}/farm/{subpath}'
-    farm_response = requests.post(farm_url, json=request["json"], headers=request["headers"])
+    farm_response = requests.get(farm_url)
     
     # terminate the farm server
     farm_process.terminate()
