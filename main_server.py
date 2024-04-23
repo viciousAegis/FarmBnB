@@ -8,7 +8,7 @@ app = Flask(__name__)
 def run_farm(subpath):
     farm_port = 5001
     
-    farm_process = subprocess.Popen(['python3.11', 'farm_management/router.py'])
+    farm_process = subprocess.Popen(['python3', 'farm_management/router.py'])
     
     # Check if the server is running by making a request to the health check endpoint
     farm_health_url = f'http://127.0.0.1:{farm_port}/health'
