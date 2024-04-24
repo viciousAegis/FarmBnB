@@ -10,10 +10,10 @@ class FarmDao():
     
     def list_farms(self):
         try:
-            all_users = list(self.farm_collection.find())
-            for user in all_users:
-                user["_id"] = str(user["_id"])
-            return jsonify(all_users)
+            all_farms = list(self.farm_collection.find())
+            for farms in all_farms:
+                farms["_id"] = str(farms["_id"])
+            return jsonify(all_farms)
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     
