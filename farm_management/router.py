@@ -149,8 +149,8 @@ def rate_farm():
     print("before")
     result = farmDao.rate_farm(farm_id, rating)
     print(result)
-    # if result != "200":
-    #     return jsonify({"error": result}), 400
+    if result[1] != 200:
+        return jsonify({"error": result[0].json["error"]}), result[1]
     print("after")
 
     # userFarmDao.rate_userfarm(user_id, farm_id, rating)
