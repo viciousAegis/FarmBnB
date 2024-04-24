@@ -87,7 +87,30 @@ def check_availability():
     if not start_date or not end_date:
         return jsonify({"error": "start_date and end_date are required"}), 400
     
+@app.route("/farm/rate", methods=["POST"])
+def rate_farm():
+    print("Rate farm")
+    user_id = request.json.get("user_id")
+    farm_id = request.json.get("farm_id")
+    rating = request.json.get("rating")
+    
+    farmDao = FarmDao(db)
+    # userFarmDao = UserFarmDao(db)
+    print("before")
+    result = farmDao.rate_farm(farm_id, rating)
+    print(result)
+    # if result != "200":
+    #     return jsonify({"error": result}), 400
+    print("after")
+
+    # userFarmDao.rate_userfarm(user_id, farm_id, rating)
+
+    return jsonify({"message": "Farm rated successfully"}), 200
+
+
+    
+    
     
 
 if __name__ == "__main__":
-    app.run(port=5003) # port for the farm server (5001)
+    app.run(port=5001) # port for the farm server (5001)

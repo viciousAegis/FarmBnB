@@ -27,3 +27,32 @@ class FarmDao():
             return jsonify(farm)
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+        
+    def rate_farm(self, farm_id, rating):
+        try:
+            farm = self.farm_collection.find_one({"farm_id": farm_id})
+            if farm is None:
+                return jsonify({"error": "Farm not found"}), 404
+            
+            print(farm)
+
+            
+            # self.farm_collection.update_one({"farm_id": ObjectId(id)}, {"$set": {"rating": rating}}) 
+            self.farm_collection.update_one({"farm_id": farm_id}, {"$push": {"rating": rating}})
+
+            print(farm['rating'])
+
+            farm['rating'].append(rating)
+
+            print(farm['rating'])
+
+            avg_rating = sum(farm['rating']) / len(farm['rating'])
+
+            print(avg_rating)
+
+            self.farm_collection.update_one({"farm_id": farm_id}, {"$set": {"avg_rating": avg_rating}})
+
+            return jsonify({"message": "Farm rating updated successfully"})
+        except Exception as e:
+            print("Exception",e)
+            return jsonify({"error": str(e)}), 500
