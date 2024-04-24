@@ -106,6 +106,30 @@ def check_availability():
             return jsonify({"available": False})
         
     return jsonify({"available": True})
+
+@app.route("/farm/rate", methods=["POST"])
+def rate_farm():
+    print("Rate farm")
+    user_id = request.json.get("user_id")
+    farm_id = request.json.get("farm_id")
+    rating = request.json.get("rating")
+    
+    farmDao = FarmDao(db)
+    # userFarmDao = UserFarmDao(db)
+    print("before")
+    result = farmDao.rate_farm(farm_id, rating)
+    print(result)
+    # if result != "200":
+    #     return jsonify({"error": result}), 400
+    print("after")
+
+    # userFarmDao.rate_userfarm(user_id, farm_id, rating)
+
+    return jsonify({"message": "Farm rated successfully"}), 200
+
+
+    
+    
     
 
 if __name__ == "__main__":
