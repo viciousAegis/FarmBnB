@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body onload="load()">
+    <div class="logo-small">
+        <img src="{{ url_for('static', filename='images/farmbnb_logo.png') }}" alt="FarmBnB Logo">
+    </div>
+    <nav class="navbar">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a href="/farms">Farms</a></li>
+            <li class="nav-item"><a href="/subscriptions">Subscriptions</a></li>
+            <li class="nav-item"><a href="/bookings">Bookings</a></li>
+            <li class="nav-item"><a href="/profile">Profile</a></li>
+        </ul>
+    </nav>
+
+    <header class="header">
+        <h1>Book Farm</h1>
+    </header>
+
+    <div class="farm-container">
+        <div class="farm-details-container">
+            <div class="farm-deets">
+                <div class="farm-image">
+                    <img src="{{ url_for('static', filename='images/farm_placeholder.png') }}" alt="Farm Image">
+                </div>
+                <div class="farm-details" id="farm-details">
+                </div>
+            </div>
+        </div>
+        <div class="booking-details">
+            <h2>Booking Details</h2>
+            <label for="start-date">Start Date:</label>
+            <input type="date" id="start-date">
+            <label for="end-date">End Date:</label>
+            <input type="date" id="end-date">
+            <p>Total Price: <span id="total-price">₹0</span></p>
+            <button id="check-availability">Check Availability</button>
+        </div>
+    </div>
+</body>
+
+<script>
+    var pricePerNight = 0;
+
+    function load() {
+        const userEmail = localStorage.getItem('user');
+        if (!userEmail) {
+            window.location.href = '/';
+        }
+
+        const farmId = "{{ farm_id }}";
+
+        if (farmId) {
+            fetch(`http://localhost:5001/farm/${farmId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    pricePerNight = data.price;
+                    displayFarmDetails(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching farm details:', error);
+                });
+        }
+    }
+
+    function displayFarmDetails(farmData) {
+        var farmDetailsContainer = document.getElementById('farm-details');
+
+        var detailsHTML = `
+                <h2>${farmData.name}</h2>
+                <p>Area: ${farmData.area}</p>
+                <p>Contact: ${farmData.contact}</p>
+                <p>Description: ${farmData.description}</p>
+                <p>Price: ₹${farmData.price}/night</p>
+                <p>Owner: ${farmData.owner}</p>
+                <p>Location: ${farmData.location}</p>
+            `;
+        farmDetailsContainer.innerHTML = detailsHTML;
+    }
+
+    function calculateTotalPrice(startDate, endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        //console.log(diffDays * pricePerNight);
+        return diffDays * pricePerNight;
+    }
+
+    //document.getElementById('start-date').addEventListener('change', updateTotalPrice);
+    document.getElementById('end-date').addEventListener('change', updateTotalPrice);
+
+    function updateTotalPrice() {
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        const totalPrice = calculateTotalPrice(startDate, endDate, pricePerNight);
+        document.getElementById('total-price').textContent = `₹${totalPrice}`;
+    }
+
+    document.getElementById('check-availability').addEventListener('click', checkAvailability);
+
+    function checkAvailability() {
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        fetch(`http://localhost:5001/farm/check_availability?start_date=${startDate}&end_date=${endDate}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(data => {
+                const availabilityButton = document.getElementById('check-availability');
+                availabilityButton.textContent = data;
+                availabilityButton.disabled = true;
+            })
+            .catch(error => {
+                console.error('Error checking availability:', error);
+            });
+    }
+</script>
+
+</html>

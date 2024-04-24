@@ -1,0 +1,294 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #0f0f30;
+    margin: 0;
+    padding: 0;
+}
+
+/* Login and Signup pages */
+.container {
+    background-color: #fff;
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="email"],
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Home page */
+.card {
+    background-color: #d4d1d1;
+    padding: 20px;
+    margin: 40px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.logo img {
+    max-width: 20px; 
+    border-radius: 5px;
+}
+
+.logo-small {
+    position: absolute;
+    top: 0px;
+    left: 1px;
+}
+
+.logo-small img {
+    max-width: 50px; 
+}
+
+.greeting {
+    margin-top: 20px;
+}
+
+.navbar {
+    margin-left: 50px;
+    background-color: #41413d; 
+    padding: 10px;
+    height: 20%;
+    display: flex;
+    justify-content: flex-start;
+    border-radius: 3px;
+}
+
+.navbar-nav {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+
+.nav-item a {
+    margin-left: 20px;
+    color: #fff; 
+    text-decoration: none;
+    border: #040303;
+}
+
+/* Farms page */
+
+.header {
+    color: #fff; /* White header text color */
+    padding: 20px;
+    text-align: center;
+}
+.card {
+    padding: 20px;
+}
+
+.farm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.farm-card {
+    background-color: #444;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.farm-card img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.farm-details h2 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.farm-details p {
+    margin: 5px 0;
+}
+
+a {
+    color: #fff;
+}
+
+a:hover {
+    color: #ddd;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+    background-color: #222;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.view-details {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Farm page */
+.farm-container {
+    display: flex;
+    padding: 20px;
+    margin: 0 auto;
+    color: #040303;
+    max-width: 100%;
+    max-height: 1000px;
+}
+
+.farm-details-container {
+    display: flex;
+    flex-direction: row;
+    flex: 70%;
+    max-width: 1000px;
+    border-radius: 8px;
+}
+
+.booking-details {
+    flex: 30%;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-left: 20px;
+    max-width: 400px;
+    height: 100%;
+    text-align: center;
+    align-items: flex-end;
+}
+
+.farm-deets {
+    display: flex;
+    flex: 70%;
+    max-width: 1000px;
+    height: 300px;
+    align-items: flex-start;
+    border-radius: 8px;
+}
+
+.farm-image {
+    flex: 30%;
+    padding: 20px;
+    background-color: #f9f9f9;
+    margin-left: 20px;
+    height: 300px;
+}
+
+.farm-details {
+    flex: 60%;
+    padding: 20px;
+    background-color: #f9f9f9;
+    color: #040303;
+    height: 300px;
+}
+
+.booking-details h2 {
+    margin-bottom: 20px;
+}
+
+.booking-details label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.booking-details input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+.booking-details p {
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.booking-details button:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+}

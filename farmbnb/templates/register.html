@@ -4,30 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <div class="container">
         <h2>Register</h2>
-        <form action="/register" method="post">
+        <form id="registrationForm" action="/register" method="post">
             <div class="form-group">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
-            </div>
-            <div class="form-group">
-                <label for="age">Age:</label>
-                <input type="number" id="age" name="age" required>
-            </div>
-            <div class="form-group">
-                <label for="gender">Gender:</label>
-                <select id="gender" name="gender" required>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="phone">Phone:</label>
-                <input type="tel" id="phone" name="phone" required>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
             </div>
             <div class="form-group">
                 <label for="email">Email:</label>
@@ -37,8 +22,48 @@
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required>
             </div>
+            <button type="submit">Register</button>
         </form>
     </div>
+
+    <script>
+        document.getElementById("registrationForm").addEventListener("submit", function(event) {
+            event.preventDefault(); 
+            
+            var formData = {
+            username: document.getElementById("username").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            wallet_balance: 0.0
+            };
+            //console.log(JSON.stringify(formData));
+
+            fetch('http://localhost:5004/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(data => {
+                //console.log(data);
+                if(data.ok) {
+                    alert('Registration successful!');
+                    window.location.href = '/';
+                }
+                else {
+                    data.json().then(response => {
+                        alert('Error: ' + response.message);
+                        
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            });
+        });
+
+    </script>
 </body>
 </html>
-            

@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <div class="container">
         <h2>Login</h2>
-        <form action="/" method="post">
+        <form id="loginForm" action="/" method="post">
             <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
+                <label for="email">Email:</label>
+                <input type="text" id="email" name="email" required>
             </div>
             <div class="form-group">
                 <label for="password">Password:</label>
@@ -23,4 +23,42 @@
         <p>Don't have an account? <a href="/register">Register here</a></p>
     </div>
 </body>
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+        event.preventDefault(); 
+                
+        var formData = {
+            "email": document.getElementById("email").value,
+            "password": document.getElementById("password").value
+        };
+
+        fetch('http://localhost:5004/user/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (response.ok) {
+                response.json().then(data => {
+                    alert('Success: ' + data.message);
+                    localStorage.setItem('user', formData.email);
+                    window.location.href = '/home';
+                });
+            } else {
+                if (response.status === 401) {
+                    alert('Error: Invalid credentials');
+                } else {
+                    alert('Error: ' + response.status);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error: ' + error.message);
+        });
+    });
+</script>
 </html>

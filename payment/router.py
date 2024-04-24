@@ -5,12 +5,13 @@ from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from payment_strategy import UpiPaymentStrategy, CardPaymentStrategy
-
+from flask_cors import CORS
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
 load_dotenv(dotenv_path)
 
 app = Flask(__name__)
+CORS(app)
 
 MONGO_URI = os.environ.get("MONGO_URI")
 if MONGO_URI is None:

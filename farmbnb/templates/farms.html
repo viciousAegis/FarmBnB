@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farms</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body onLoad="check()">
+    <div class="logo-small">
+        <img src="{{ url_for('static', filename='images/farmbnb_logo.png') }}" alt="FarmBnB Logo">
+    </div>
+    <nav class="navbar">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a href="/farms">Farms</a></li>
+            <li class="nav-item"><a href="/subscriptions">Subscriptions</a></li>
+            <li class="nav-item"><a href="/bookings">Bookings</a></li>
+            <li class="nav-item"><a href="/profile">Profile</a></li>
+        </ul>
+    </nav>
+    
+    <header class="header">
+        <h1>Explore Farms</h1>
+    </header>
+
+    <div class="card">
+        <div class="farm-grid" id="farm-grid">
+          
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('http://localhost:5001/farm/list')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    data.forEach(farm => {
+                        var farmCard = `
+                            <div class="farm-card">
+                                <img src="{{ url_for('static', filename='images/farm_placeholder.png') }}" alt="Farm Image">
+                                <div class="farm-details">
+                                    <h2>${farm.name}</h2>
+                                    <p>in ${farm.location}</p>
+                                    <p>₹${farm.price}/night</p><br><br>
+                                    <a href="/farms/${farm.farm_id}" class="view-details">View Details</a>
+                                </div>
+                            </div>`;
+                        document.getElementById('farm-grid').insertAdjacentHTML('beforeend', farmCard);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching farm data:', error);
+                });
+        });
+
+        function check() {
+            const userEmail = localStorage.getItem('user');
+            if (!userEmail) {
+                window.location.href = '/';
+            }
+        }
+    </script>
+</body>
+</html>
