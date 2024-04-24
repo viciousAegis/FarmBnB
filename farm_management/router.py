@@ -81,6 +81,7 @@ def list_userfarms():
 
 @app.route("/farm/check_availability", methods=["GET"])
 def check_availability():
+    print("Check availability")
     start_date_str = request.json["start_date"]
     end_date_str = request.json["end_date"]
     farm_id = request.json["farm_id"]
@@ -106,6 +107,35 @@ def check_availability():
             return jsonify({"available": False})
         
     return jsonify({"available": True})
+
+@app.route("/farm/book", methods=["POST"])
+def book_farm():
+    print("Book farm")
+    user_id = request.json.get("user_id")
+    farm_id = request.json.get("farm_id")
+    start_date = request.json.get("start_date")
+    end_date = request.json.get("end_date")
+    total_price = request.json.get("total_price")
+    rating = 0
+
+    if not user_id or not farm_id or not start_date or not end_date or not total_price:
+        return jsonify({"error": "user_id, farm_id, start_date, end_date, total_price are required"}), 400
+    
+    farmDao = FarmDao(db)
+    farm = farmDao.get_farm_by_farmid(farm_id)
+    print(farm)
+    if farm[1] != 200:
+        print("Farm not found")
+        return jsonify({"error": farm[0].json["error"]}), 404
+    
+    userFarmDao = UserFarmDao(db)
+    userfarm = UserFarm(user_id, farm_id, start_date, end_date, total_price, rating)
+    try:
+        userFarmDao.insert_userfarm(userfarm)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+    return jsonify({"message": "Farm booked successfully"}), 200
 
 @app.route("/farm/rate", methods=["POST"])
 def rate_farm():

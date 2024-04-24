@@ -13,7 +13,7 @@ class FarmDao():
             all_farms = list(self.farm_collection.find())
             for farms in all_farms:
                 farms["_id"] = str(farms["_id"])
-            return jsonify(all_farms)
+            return jsonify(all_farms), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     
@@ -24,7 +24,18 @@ class FarmDao():
                 return jsonify({"error": "Farm not found"}), 404
             
             farm["_id"] = str(farm["_id"])
-            return jsonify(farm)
+            return jsonify(farm), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    
+    def get_farm_by_farmid(self, farm_id):
+        try:
+            farm = self.farm_collection.find_one({"farm_id": farm_id})
+            if farm is None:
+                return jsonify({"error": "Farm not found"}), 404
+            
+            farm["_id"] = str(farm["_id"])
+            return jsonify(farm), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 500
         
@@ -52,7 +63,7 @@ class FarmDao():
 
             self.farm_collection.update_one({"farm_id": farm_id}, {"$set": {"avg_rating": avg_rating}})
 
-            return jsonify({"message": "Farm rating updated successfully"})
+            return jsonify({"message": "Farm rating updated successfully"}), 200
         except Exception as e:
             print("Exception",e)
             return jsonify({"error": str(e)}), 500
