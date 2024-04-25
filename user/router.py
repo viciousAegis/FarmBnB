@@ -3,8 +3,13 @@ import json
 from pymongo import MongoClient
 import bcrypt
 import os
+from dotenv import load_dotenv
 from handlers import LengthValidationHandler, AlphanumericValidationHandler, EmailValidationHandler, ValidationException
 from bson import ObjectId
+from flask_cors import CORS
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+load_dotenv(dotenv_path)
 
 class MongoJsonEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -13,10 +18,13 @@ class MongoJsonEncoder(json.JSONEncoder):
         return super().default(obj)
 
 app = Flask(__name__)
+CORS(app)
 app.json_encoder = MongoJsonEncoder
 
-mongo_uri = "mongodb+srv://admin:admin@database.r0vy6ca.mongodb.net/?retryWrites=true&w=majority&appName=Database"
-client = MongoClient(mongo_uri)
+MONGO_URI = os.environ.get("MONGO_URI")
+if MONGO_URI is None:
+    raise ValueError("MONGO_URI environment variable is not set")
+client = MongoClient(MONGO_URI)
 db = client['farmbnb']
 users = db.user
 
@@ -36,7 +44,8 @@ length_for_email.set_next(email_validator)
 def find_user_by_email(email):
     return users.find_one({"email": email})
 
-
+def find_user_by_id(id):
+    return users.find_one({"id": id})
 
 @app.route('/user/login', methods=['POST'])
 def login():
@@ -66,6 +75,8 @@ def login():
 @app.route('/user/register', methods=['POST'])
 def register():
     user_data = request.json
+    if not user_data:
+        return jsonify({"message": "Request data is missing or not in JSON format"}), 400
 
     # Validate email
     try:
@@ -97,11 +108,13 @@ def register():
     user_data['password'] = hashed_password.decode('utf-8')  # Store decoded hash for compatibility
 
     # Insert new user into the database
+    
     users.insert_one(user_data)
 
     # Remove password from user details before returning it
     user_data.pop('password')
     user_data.pop('_id')
+    user_data.pop('id')
     print(user_data)
     return jsonify({"message": "User registered", "user": user_data}), 201
 
@@ -110,12 +123,13 @@ def register():
 # Profile endpoint
 @app.route('/user/profile', methods=['GET'])
 def profile():
-    email = request.args.get('email')
-    print(email)
-    user = find_user_by_email(email)
+    id = request.args.get('id')
+    print(id)
+    user = find_user_by_id(id)
     if user:
         user.pop('password') 
         user.pop('_id')
+        user.pop('id')
         return jsonify(user), 200
     return jsonify({"message": "User not found"}), 404
 
@@ -126,8 +140,9 @@ def list_users():
     print(user_list)
     for user_detail in user_list:
         user_detail.pop('_id')
+        user_detail.pop('id')
     print(user_list)
     return jsonify(user_list), 200
 
 if __name__ == "__main__":
-    app.run(port=5002, debug=False)
+    app.run(port=5004, debug=False)
