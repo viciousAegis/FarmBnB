@@ -1,30 +1,68 @@
 import os
-from flask import Flask, jsonify
-from pymongo import MongoClient
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+from numpy import double
+from payment import Payment
+from payment_strategy import UpiPaymentStrategy, CardPaymentStrategy
+from paymentDao import PaymentDao
 from dotenv import load_dotenv
+
+app = Flask(__name__)
+CORS(app)
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
 load_dotenv(dotenv_path)
 
-app = Flask(__name__)
-
 MONGO_URI = os.environ.get("MONGO_URI")
 if MONGO_URI is None:
     raise ValueError("MONGO_URI environment variable is not set")
-try:
-    client = MongoClient(MONGO_URI)
-    db = client.farmbnb
-    user_collection = db.user
-    farm_collection = db.farm
-    print("Connected to MongoDB")
-except Exception as e:
-    print(f"Failed to connect to MongoDB: {e}")
 
+payment_dao = PaymentDao(MONGO_URI)
 
+'''
+this is the health check endpoint for the farm server.
+this is used to check if the farm server is running.
+'''
+@app.route('/health')
+def health_check():
+    return 'OK'
 
-@app.route("/pay/upi", methods=["GET"])
-def upi_payment():
-    return jsonify({"message": "UPI payment successful"})
+@app.route("/pay/book", methods=["POST"])
+def process_payment_and_book():
+    data = request.json
+    payment = Payment(data.get("user_id"), float(data.get("amount")), data.get("payment_info"), float(data.get("total_price")))
+    payment_method = data.get("payment_method")
+    amount = float(data.get("amount"))
+    userId = data.get("user_id")
+
+    if payment_method == "upi":
+        payment_strategy = UpiPaymentStrategy()
+    elif payment_method == "card":
+        payment_strategy = CardPaymentStrategy()
+    else:
+        return jsonify({"status": "error", "message": "Invalid payment method"})
+
+    payment_result = payment.process_payment(payment_strategy)
+    return jsonify(payment_result)
+
+@app.route('/pay/wallet', methods=['POST'])
+def pay_using_wallet():
+    data = request.json
+    user_id = data.get("user_id")
+    total_price = int(data.get("total_price"))
+
+    user = payment_dao.user_collection.find_one({"id": user_id})
+    if user is None:
+        return jsonify({"status": "error", "message": "User not found"})
+    if user["wallet_balance"] < total_price:
+        return jsonify({"status": "error", "message": "Insufficient balance"})
+    
+    payment_dao.update_wallet_balance(user_id, -total_price)
+    return jsonify({"status": "success", "message": "Payment successful using wallet"})
+
+@app.route('/health')
+def health_check():
+    return "OK"
 
 if __name__ == "__main__":
     app.run(debug=False, port=5002)

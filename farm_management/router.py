@@ -9,10 +9,13 @@ from userFarm import UserFarm
 from userFarmDao import UserFarmDao
 from datetime import datetime
 from bson.objectid import ObjectId
+from flask_cors import CORS
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
 load_dotenv(dotenv_path)
 app = Flask(__name__)
+
+CORS(app)
 
 MONGO_URI = os.environ.get("MONGO_URI")
 if MONGO_URI is None:
@@ -46,13 +49,13 @@ def insert_userfarm():
 @app.route("/farm/list", methods=["GET"])
 def list_farms():
     print("List of farms")
-    # print(request.json)
+    print(request)
     
     farmDao = FarmDao(db)
     
     farmlist = farmDao.list_farms()
 
-    # print(farmlist)
+    print(farmlist)
 
     return farmlist
 
@@ -65,7 +68,7 @@ def get_farm(id):
 
     return farmDao.get_farm_by_id(id)
 
-@app.route("/userfarm/list", methods=["GET"])
+@app.route("/farm/listuserfarm", methods=["GET"])
 def list_userfarms():
     print("List of user farms")
     # print(request.json)
@@ -82,12 +85,17 @@ def list_userfarms():
 @app.route("/farm/check_availability", methods=["GET"])
 def check_availability():
     print("Check availability")
-    start_date_str = request.json["start_date"]
-    end_date_str = request.json["end_date"]
-    farm_id = request.json["farm_id"]
+    print(request.args)
+    print(request.args.get("start_date"))
+    start_date_str = request.args.get("start_date")
+    end_date_str = request.args.get("end_date")
+    farm_id = request.args.get("farm_id")
 
     start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
     end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
+
+    print(start_date)
+    print(end_date)
 
 
     if not start_date or not end_date:
@@ -97,16 +105,20 @@ def check_availability():
         return jsonify({"error": "farm_id is required"}), 400
     
     userFarmDao = UserFarmDao(db)
-    userfarms = userFarmDao.get_userfarm_by_farmid(farm_id).get_json()
-
+    result = userFarmDao.get_userfarm_by_farmid(farm_id)
+    if result[1] != 200:
+        return jsonify({"error": result[0].json["error"]}), result[1]
+    
+    
+    userfarms = result[0].get_json()
     for userfarm in userfarms:
         booked_start_date = datetime.strptime(userfarm["start_date"], "%Y-%m-%d").date()
         booked_end_date = datetime.strptime(userfarm["end_date"], "%Y-%m-%d").date()
 
         if (start_date < booked_start_date and end_date >= booked_start_date) or (start_date >= booked_start_date and start_date <= booked_end_date):
-            return jsonify({"available": False})
-        
-    return jsonify({"available": True})
+            return jsonify({"available": False}), 200
+    
+    return jsonify({"available": True}), 200
 
 @app.route("/farm/book", methods=["POST"])
 def book_farm():
@@ -143,31 +155,19 @@ def rate_farm():
     user_id = request.json.get("user_id")
     farm_id = request.json.get("farm_id")
     rating = request.json.get("rating")
-
-    if not user_id or not farm_id or not rating:
-        return jsonify({"error": "user_id, farm_id, rating are required"}), 400
     
     farmDao = FarmDao(db)
     # userFarmDao = UserFarmDao(db)
+    print("before")
     result = farmDao.rate_farm(farm_id, rating)
     print(result)
     if result[1] != 200:
         return jsonify({"error": result[0].json["error"]}), result[1]
-
-    userFarmDao = UserFarmDao(db)
-
-    try:
-        userFarmDao.rate_userfarm(user_id, farm_id, rating)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+    print("after")
 
     # userFarmDao.rate_userfarm(user_id, farm_id, rating)
 
     return jsonify({"message": "Farm rated successfully"}), 200
-
-
-    
-    
     
 
 if __name__ == "__main__":
