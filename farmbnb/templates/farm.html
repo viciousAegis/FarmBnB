@@ -175,7 +175,7 @@
     }
 
     function bookFarm() {
-        user = localStorage.getItem('user');
+        const user = localStorage.getItem('user');
         fetch(`http://localhost:5004/user/profile?id=${user}`)
             .then(user => {
                 wallet_balance = user.wallet_balance;
@@ -184,38 +184,16 @@
                 console.error('Error fetching user profile:', error);
             });
 
-        /*
+        
         const startDate = document.getElementById('start-date').value;
         const endDate = document.getElementById('end-date').value;
         const farmId = "{{ farm_id }}"; 
-        const user = localStorage.getItem('user');
 
         if (!startDate || !endDate) {
             alert('Please select start and end dates to book');
             return;
         }
-
-        const requestData = {
-            start_date: startDate,
-            end_date: endDate,
-            farm_id: farmId,
-            user: user
-        };
-
-        fetch('http://localhost:5001/farm/book', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestData)
-        }).then(data => {
-            alert('Farm booked successfully');
-            window.location.href = '/bookings';
-        })
-            .catch(error => {
-                console.error('Error booking farm:', error);
-            });
-        */
+        
         //console.log(wallet_balance);
 
         if (wallet_balance < totalPrice) {
@@ -253,6 +231,28 @@
                     alert('Error occurred while processing payment');
                 });
         }
+
+        const requestData = {
+            start_date: startDate,
+            end_date: endDate,
+            farm_id: farmId,
+            user_id: user,
+            total_price: totalPrice
+        };
+
+        fetch('http://localhost:5001/farm/book', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        }).then(data => {
+            alert('Farm booked successfully');
+            window.location.href = '/bookings';
+        })
+            .catch(error => {
+                console.error('Error booking farm:', error);
+            });
     }
 
 </script>
