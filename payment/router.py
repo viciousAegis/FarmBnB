@@ -14,6 +14,14 @@ if MONGO_URI is None:
 
 payment_dao = PaymentDao(MONGO_URI)
 
+'''
+this is the health check endpoint for the farm server.
+this is used to check if the farm server is running.
+'''
+@app.route('/health')
+def health_check():
+    return 'OK'
+
 @app.route("/pay/book", methods=["POST"])
 def process_payment_and_book():
     data = request.json

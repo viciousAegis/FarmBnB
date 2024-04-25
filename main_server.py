@@ -1,41 +1,114 @@
 from flask import Flask, jsonify, request
 import subprocess
 import requests
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
-@app.route('/farm/<path:subpath>', methods=['GET', 'POST'])
+
+@app.route("/farm/<path:subpath>", methods=["GET", "POST"])
 def run_farm(subpath):
+    print("starting farm server")
     farm_port = 5001
-    
-    farm_process = subprocess.Popen(['python3.11', 'farm_management/router.py'])
-    
+
+    farm_process = subprocess.Popen(["python3", "farm_management/router.py"])
+
     # Check if the server is running by making a request to the health check endpoint
-    farm_health_url = f'http://127.0.0.1:{farm_port}/health'
+    farm_health_url = f"http://127.0.0.1:{farm_port}/health"
     while True:
         try:
             response = requests.get(farm_health_url)
             print(response.text)
-            if response.text == 'OK':
+            if response.text == "OK":
                 break  # Server is up and running
         except requests.ConnectionError:
-            pass  # Server is not yet available, try 
-    request = {
-        "json": {
-            "key": "value"
-        },
-        "headers": {
-            "Content-Type": "application/json"
-        }
-    }   
+            pass  # Server is not yet available, try
+    print("farm server is running")
+    farm_url = f"http://localhost:{farm_port}/farm/{subpath}"
 
-    farm_url = f'http://localhost:{farm_port}/farm/{subpath}'
-    farm_response = requests.post(farm_url, json=request["json"], headers=request["headers"])
-    
+    # check method type
+    if request.method == "GET":
+        farm_response = requests.get(farm_url, headers=request.headers)
+    elif request.method == "POST":
+        farm_response = requests.post(
+            farm_url, json=request.json, headers=request.headers
+        )
+
     # terminate the farm server
     farm_process.terminate()
-    
+    print("closing farm server")
+
     return farm_response.json()
 
-if __name__ == '__main__':
-    app.run(port=5000) # port for the main server
+
+@app.route("/user/<path:subpath>", methods=["GET", "POST"])
+def run_user(subpath):
+    print("starting user server")
+    user_port = 5004
+
+    user_process = subprocess.Popen(["python3", "user/router.py"])
+
+    # Check if the server is running by making a request to the health check endpoint
+    user_health_url = f"http://127.0.0.1:{user_port}/health"
+    while True:
+        try:
+            response = requests.get(user_health_url)
+            print(response.text)
+            if response.text == "OK":
+                break  # Server is up and running
+        except requests.ConnectionError:
+            pass
+
+    print("user server is running")
+    user_url = f"http://localhost:{user_port}/user/{subpath}"
+    if request.method == "GET":
+        user_response = requests.get(user_url, headers=request.headers)
+    elif request.method == "POST":
+        user_response = requests.post(
+            user_url, json=request.json, headers=request.headers
+        )
+
+    # terminate the user server
+    print("closing user server")
+    user_process.terminate()
+
+    return user_response.json()
+
+
+@app.route("/pay/<path:subpath>", methods=["GET", "POST"])
+def run_payment(subpath):
+    print("starting payment server")
+    payment_port = 5002
+
+    payment_process = subprocess.Popen(["python3", "payment/router.py"])
+
+    # Check if the server is running by making a request to the health check endpoint
+    payment_health_url = f"http://127.0.0.1:{payment_port}/health"
+    while True:
+        try:
+            response = requests.get(payment_health_url)
+            print(response.text)
+            if response.text == "OK":
+                break  # Server is up and running
+        except requests.ConnectionError:
+            pass
+
+    print("payment server is running")
+    payment_url = f"http://localhost:{payment_port}/pay/{subpath}"
+    if request.method == "GET":
+        payment_response = requests.get(payment_url, headers=request.headers)
+    elif request.method == "POST":
+        payment_response = requests.post(
+            payment_url, json=request.json, headers=request.headers
+        )
+
+    # terminate the payment server
+    print("closing payment server")
+    payment_process.terminate()
+
+    return payment_response.json()
+
+
+if __name__ == "__main__":
+    app.run(port=5000)  # port for the main server

@@ -53,6 +53,7 @@
     var wallet_balance = 0.0;
     var totalPrice = 0;
     var user = '';
+    const BASE_URL = "http://127.0.0.1:5000"
 
     function load() {
         const userEmail = localStorage.getItem('user');
@@ -63,7 +64,7 @@
         //const farmId = "{{ farm_id }}";
 
         if (farmId) {
-            fetch(`http://localhost:5001/farm/${farmId}`)
+            fetch(`${BASE_URL}/farm/${farmId}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -145,7 +146,7 @@
         };
 
         const params = new URLSearchParams(requestData);
-        const url = 'http://localhost:5001/farm/check_availability';
+        const url = `${BASE_URL}/farm/check_availability`;
 
         fetch(`${url}?${params}`, {
             method: 'GET',
@@ -176,7 +177,7 @@
 
     function bookFarm() {
         const user = localStorage.getItem('user');
-        fetch(`http://localhost:5004/user/profile?id=${user}`)
+        fetch(`${BASE_URL}/user/profile?id=${user}`)
             .then(user => {
                 wallet_balance = user.wallet_balance;
             })
@@ -201,7 +202,7 @@
             window.location.href = '/topup';
         }
         else {
-            fetch('http://localhost:5002/pay/wallet', {
+            fetch(BASE_URL + '/pay/wallet', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -240,7 +241,7 @@
             total_price: totalPrice
         };
 
-        fetch('http://localhost:5001/farm/book', {
+        fetch(`${BASE_URL}/farm/book`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

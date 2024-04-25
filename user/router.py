@@ -47,9 +47,19 @@ def find_user_by_email(email):
 def find_user_by_id(id):
     return users.find_one({"id": id})
 
+
+'''
+this is the health check endpoint for the farm server.
+this is used to check if the farm server is running.
+'''
+@app.route('/health')
+def health_check():
+    return 'OK'
+
 @app.route('/user/login', methods=['POST'])
 def login():
     credentials = request.json
+    print(credentials)
     user = find_user_by_email(credentials['email'])
     password_provided = credentials['password'].encode('utf-8')
 

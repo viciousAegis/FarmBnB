@@ -25,6 +25,8 @@
 </body>
 
 <script>
+    const BASE_URL = "http://127.0.0.1:5000"
+
     document.getElementById("loginForm").addEventListener("submit", function(event) {
         event.preventDefault(); 
                 
@@ -33,7 +35,7 @@
             "password": document.getElementById("password").value
         };
 
-        fetch('http://localhost:5004/user/login', {
+        fetch(`${BASE_URL}/user/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -52,7 +54,7 @@
                 if (response.status === 401) {
                     alert('Error: Invalid credentials');
                 } else {
-                    alert('Error: ' + response.status);
+                    alert('Error inside: ' + response.status);
                 }
             }
         })
