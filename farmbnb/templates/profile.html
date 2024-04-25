@@ -59,13 +59,15 @@
     </div>
 
     <script>
+        const BASE_URL = "http://127.0.0.1:5000"
+
         function loadUserProfile() {
             const user = localStorage.getItem('user');
             if (!user) {
                 window.location.href = '/';
             }
 
-            fetch(`http://localhost:5004/user/profile?id=${user}`)
+            fetch(`${BASE_URL}/user/profile?id=${user}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
