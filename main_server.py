@@ -80,6 +80,8 @@ def run_user(subpath):
     print("user server is running")
     user_url = f"http://localhost:{user_port}/user/{subpath}"
     if request.method == "GET":
+        if request.args:
+            user_url = create_query_string(user_url, request.args)
         user_response = requests.get(user_url, json=request.json, headers=request.headers)
     elif request.method == "POST":
         user_response = requests.post(
@@ -114,6 +116,8 @@ def run_payment(subpath):
     print("payment server is running")
     payment_url = f"http://localhost:{payment_port}/pay/{subpath}"
     if request.method == "GET":
+        if request.args:
+            payment_url = create_query_string(payment_url, request.args)
         payment_response = requests.get(payment_url, json=request.json, headers=request.headers)
     elif request.method == "POST":
         payment_response = requests.post(
