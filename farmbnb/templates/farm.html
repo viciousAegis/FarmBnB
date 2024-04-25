@@ -49,6 +49,10 @@
 
 <script>
     var pricePerNight = 0;
+    const farmId = "{{ farm_id }}";
+    var wallet_balance = 0.0;
+    var totalPrice = 0;
+    var user = '';
 
     function load() {
         const userEmail = localStorage.getItem('user');
@@ -56,7 +60,7 @@
             window.location.href = '/';
         }
 
-        const farmId = "{{ farm_id }}";
+        //const farmId = "{{ farm_id }}";
 
         if (farmId) {
             fetch(`http://localhost:5001/farm/${farmId}`)
@@ -81,12 +85,12 @@
 
         var detailsHTML = `
                 <h2>${farmData.name}</h2>
-                <p>Area: ${farmData.area}</p>
-                <p>Contact: ${farmData.contact}</p>
-                <p>Description: ${farmData.description}</p>
-                <p>Price: ₹${farmData.price}/night</p>
-                <p>Owner: ${farmData.owner}</p>
-                <p>Location: ${farmData.location}</p>
+                <p><b>Area:</b> ${farmData.area}</p>
+                <p><b>Contact:</b> ${farmData.contact}</p>
+                <p><b>Description:</b> ${farmData.description}</p>
+                <p><b>Price:</b> ₹${farmData.price}/night</p>
+                <p><b>Owner:</b> ${farmData.owner}</p>
+                <p><b>Location:</b> ${farmData.location}</p>
             `;
         farmDetailsContainer.innerHTML = detailsHTML;
     }
@@ -97,15 +101,19 @@
         const diffTime = Math.abs(end - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         //console.log(diffDays * pricePerNight);
+        totalPrice = diffDays * pricePerNight;
         return diffDays * pricePerNight;
     }
 
-    //document.getElementById('start-date').addEventListener('change', updateTotalPrice);
+    document.getElementById('start-date').addEventListener('change', updateTotalPrice);
     document.getElementById('end-date').addEventListener('change', updateTotalPrice);
 
     function updateTotalPrice() {
         const startDate = document.getElementById('start-date').value;
         const endDate = document.getElementById('end-date').value;
+        if (!startDate || !endDate) {
+            return;
+        }
         const totalPrice = calculateTotalPrice(startDate, endDate, pricePerNight);
         document.getElementById('total-price').textContent = `₹${totalPrice}`;
     }
@@ -113,24 +121,131 @@
     document.getElementById('check-availability').addEventListener('click', checkAvailability);
 
     function checkAvailability() {
+        const availabilityButton = document.getElementById('check-availability');
+        if (availabilityButton.textContent === 'Book') {
+            bookFarm();
+            return;
+        }
         const startDate = document.getElementById('start-date').value;
         const endDate = document.getElementById('end-date').value;
-        fetch(`http://localhost:5001/farm/check_availability?start_date=${startDate}&end_date=${endDate}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.text();
-            })
-            .then(data => {
-                const availabilityButton = document.getElementById('check-availability');
-                availabilityButton.textContent = data;
-                availabilityButton.disabled = true;
-            })
+        const farmId = "{{ farm_id }}"; // Assuming farm_id is available in the template
+
+        if (!startDate || !endDate) {
+            alert('Please select start and end dates to check availability');
+            return;
+        }
+
+        /*
+        const requestData = {
+            start_date: startDate,
+            end_date: endDate,
+            farm_id: farmId
+        };
+
+        fetch('http://localhost:5001/farm/check_availability', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        }).then(data => {
+            const availabilityButton = document.getElementById('check-availability');
+            if (data.available) {
+                availabilityButton.textContent = 'Available to book';
+                // Enable booking functionality if needed
+            } else {
+                availabilityButton.textContent = 'Not available';
+            }
+            availabilityButton.disabled = true;
+        })
             .catch(error => {
                 console.error('Error checking availability:', error);
             });
+            */
+        availabilityButton.textContent = 'Book';
     }
+
+    function bookFarm() {
+        user = localStorage.getItem('user');
+        fetch(`http://localhost:5004/user/profile?id=${user}`)
+            .then(user => {
+                wallet_balance = user.wallet_balance;
+            })
+            .catch(error => {
+                console.error('Error fetching user profile:', error);
+            });
+
+        /*
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        const farmId = "{{ farm_id }}"; 
+        const user = localStorage.getItem('user');
+
+        if (!startDate || !endDate) {
+            alert('Please select start and end dates to book');
+            return;
+        }
+
+        const requestData = {
+            start_date: startDate,
+            end_date: endDate,
+            farm_id: farmId,
+            user: user
+        };
+
+        fetch('http://localhost:5001/farm/book', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        }).then(data => {
+            alert('Farm booked successfully');
+            window.location.href = '/bookings';
+        })
+            .catch(error => {
+                console.error('Error booking farm:', error);
+            });
+        */
+        //console.log(wallet_balance);
+
+        if (wallet_balance < totalPrice) {
+            alert('Insufficient balance');
+            window.location.href = '/topup';
+        }
+        else {
+            fetch('http://localhost:5002/pay/wallet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: user,
+                    total_price: totalPrice
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Payment successful using wallet');
+                        window.location.href = '/bookings';
+                    } else {
+                        alert(data.message);
+                        //window.location.href = '/topup';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error paying using wallet:', error);
+                    alert('Error occurred while processing payment');
+                });
+        }
+    }
+
 </script>
 
 </html>

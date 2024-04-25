@@ -28,5 +28,17 @@ def farm(id):
 def profile():
     return render_template('profile.html')
 
+@app.route('/bookings')
+def bookings():
+    return render_template('bookings.html')
+
+@app.route('/subscriptions')
+def subscriptions():
+    return render_template('subscriptions.html')
+
+@app.route('/topup')
+def topup():
+    return render_template('topup.html')
+
 if __name__ == '__main__':
     app.run(debug=True, port=3000)

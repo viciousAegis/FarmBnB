@@ -44,7 +44,8 @@
             if (response.ok) {
                 response.json().then(data => {
                     alert('Success: ' + data.message);
-                    localStorage.setItem('user', formData.email);
+                    console.log(data);
+                    localStorage.setItem('user', data.user['id']);
                     window.location.href = '/home';
                 });
             } else {

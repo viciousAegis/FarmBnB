@@ -27,6 +27,10 @@
     </div>
 
     <script>
+        randomId = function() {
+            return Math.random().toString(36).substr(2, 9);
+        };
+
         document.getElementById("registrationForm").addEventListener("submit", function(event) {
             event.preventDefault(); 
             
@@ -34,7 +38,8 @@
             username: document.getElementById("username").value,
             email: document.getElementById("email").value,
             password: document.getElementById("password").value,
-            wallet_balance: 0.0
+            wallet_balance: 0.0,
+            id: randomId()
             };
             //console.log(JSON.stringify(formData));
 

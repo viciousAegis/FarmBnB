@@ -44,7 +44,8 @@ length_for_email.set_next(email_validator)
 def find_user_by_email(email):
     return users.find_one({"email": email})
 
-
+def find_user_by_id(id):
+    return users.find_one({"id": id})
 
 @app.route('/user/login', methods=['POST'])
 def login():
@@ -107,12 +108,13 @@ def register():
     user_data['password'] = hashed_password.decode('utf-8')  # Store decoded hash for compatibility
 
     # Insert new user into the database
-    print("hi" + user_data)
+    
     users.insert_one(user_data)
 
     # Remove password from user details before returning it
     user_data.pop('password')
     user_data.pop('_id')
+    user_data.pop('id')
     print(user_data)
     return jsonify({"message": "User registered", "user": user_data}), 201
 
@@ -121,12 +123,13 @@ def register():
 # Profile endpoint
 @app.route('/user/profile', methods=['GET'])
 def profile():
-    email = request.args.get('email')
-    print(email)
-    user = find_user_by_email(email)
+    id = request.args.get('id')
+    print(id)
+    user = find_user_by_id(id)
     if user:
         user.pop('password') 
         user.pop('_id')
+        user.pop('id')
         return jsonify(user), 200
     return jsonify({"message": "User not found"}), 404
 
@@ -137,6 +140,7 @@ def list_users():
     print(user_list)
     for user_detail in user_list:
         user_detail.pop('_id')
+        user_detail.pop('id')
     print(user_list)
     return jsonify(user_list), 200
 

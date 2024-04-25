@@ -60,12 +60,12 @@
 
     <script>
         function loadUserProfile() {
-            const userEmail = localStorage.getItem('user');
-            if (!userEmail) {
+            const user = localStorage.getItem('user');
+            if (!user) {
                 window.location.href = '/';
             }
 
-            fetch(`http://localhost:5004/user/profile?email=${userEmail}`)
+            fetch(`http://localhost:5004/user/profile?id=${user}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -91,6 +91,7 @@
                 <h2>User Profile</h2>
                 <p><strong>Name:</strong> ${user.username}</p>
                 <p><strong>Email:</strong> ${user.email}</p>
+                <p><strong>Wallet Balance:</strong> ${user.wallet_balance}</p>
             `;
         }
     </script>
