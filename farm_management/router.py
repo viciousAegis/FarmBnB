@@ -143,15 +143,23 @@ def rate_farm():
     user_id = request.json.get("user_id")
     farm_id = request.json.get("farm_id")
     rating = request.json.get("rating")
+
+    if not user_id or not farm_id or not rating:
+        return jsonify({"error": "user_id, farm_id, rating are required"}), 400
     
     farmDao = FarmDao(db)
     # userFarmDao = UserFarmDao(db)
-    print("before")
     result = farmDao.rate_farm(farm_id, rating)
     print(result)
     if result[1] != 200:
         return jsonify({"error": result[0].json["error"]}), result[1]
-    print("after")
+
+    userFarmDao = UserFarmDao(db)
+
+    try:
+        userFarmDao.rate_userfarm(user_id, farm_id, rating)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
     # userFarmDao.rate_userfarm(user_id, farm_id, rating)
 
