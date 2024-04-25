@@ -131,10 +131,19 @@
         }
         const startDate = document.getElementById('start-date').value;
         const endDate = document.getElementById('end-date').value;
-        const farmId = "{{ farm_id }}"; // Assuming farm_id is available in the template
+        const farmId = "{{ farm_id }}"; 
 
         if (!startDate || !endDate) {
             alert('Please select start and end dates to check availability');
+            return;
+        } else if(startDate > endDate) {
+            alert('End date should be after start date');
+            return;
+        } else if(startDate < new Date().toISOString().split('T')[0]) {
+            alert('Start date should be after today');
+            return;
+        } else if(endDate < new Date().toISOString().split('T')[0]) {
+            alert('End date should be after today');
             return;
         }
 
@@ -198,8 +207,7 @@
         //console.log(wallet_balance);
 
         if (wallet_balance < totalPrice) {
-            alert('Insufficient balance');
-            window.location.href = '/topup';
+            window.location.href = '/topup?userId=' + user + '&totalPrice=' + totalPrice;
         }
         else {
             fetch(BASE_URL + '/pay/wallet', {

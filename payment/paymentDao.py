@@ -6,5 +6,8 @@ class PaymentDao:
         self.db = self.client.farmbnb
         self.user_collection = self.db.user
 
-    def update_wallet_balance(self, user_id, amount):
-        self.user_collection.update_one({"user_id": user_id}, {"$inc": {"wallet_balance": amount}})
+    def increase_wallet_balance(self, user_id, amount):
+        self.user_collection.update_one({"id": user_id}, {"$inc": {"wallet_balance": float(amount)}})
+
+    def decrease_wallet_balance(self, user_id, amount):
+        self.user_collection.update_one({"id": user_id}, {"$inc": {"wallet_balance": -float(amount)}})

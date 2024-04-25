@@ -45,7 +45,7 @@
         .then(response => {
             if (response.ok) {
                 response.json().then(data => {
-                    alert('Success: ' + data.message);
+                    //alert('Success: ' + data.message);
                     console.log(data);
                     localStorage.setItem('user', data.user['id']);
                     window.location.href = '/home';
