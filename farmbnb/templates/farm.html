@@ -116,6 +116,8 @@
         }
         const totalPrice = calculateTotalPrice(startDate, endDate, pricePerNight);
         document.getElementById('total-price').textContent = `₹${totalPrice}`;
+        document.getElementById('check-availability').textContent = 'Check Availability';
+        document.getElementById('check-availability').disabled = false;
     }
 
     document.getElementById('check-availability').addEventListener('click', checkAvailability);
@@ -135,34 +137,41 @@
             return;
         }
 
-        /*
+        
         const requestData = {
+            farm_id: farmId,
             start_date: startDate,
             end_date: endDate,
-            farm_id: farmId
         };
 
-        fetch('http://localhost:5001/farm/check_availability', {
-            method: 'POST',
+        const params = new URLSearchParams(requestData);
+        const url = 'http://localhost:5001/farm/check_availability';
+
+        fetch(`${url}?${params}`, {
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestData)
+            }
         }).then(data => {
+            return data.json();
+        }).then(data => {
+
             const availabilityButton = document.getElementById('check-availability');
+
             if (data.available) {
-                availabilityButton.textContent = 'Available to book';
+                availabilityButton.textContent = 'Book';
+                // availabilityButton.textContent = 'Available to book';
+                console.log('Available to book');
                 // Enable booking functionality if needed
             } else {
                 availabilityButton.textContent = 'Not available';
+                console.log('Not available');
+                availabilityButton.disabled = true;
             }
-            availabilityButton.disabled = true;
         })
             .catch(error => {
                 console.error('Error checking availability:', error);
             });
-            */
-        availabilityButton.textContent = 'Book';
     }
 
     function bookFarm() {

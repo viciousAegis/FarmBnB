@@ -81,15 +81,18 @@ def list_userfarms():
 
     return userfarmlist
 
-@app.route("/farm/check_availability", methods=["POST"])
+@app.route("/farm/check_availability", methods=["GET"])
 def check_availability():
     print("Check availability")
-    start_date_str = request.json["start_date"]
-    end_date_str = request.json["end_date"]
-    farm_id = request.json["farm_id"]
+    start_date_str = request.args.get("start_date")
+    end_date_str = request.args.get("end_date")
+    farm_id = request.args.get("farm_id")
 
     start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
     end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
+
+    print(start_date)
+    print(end_date)
 
 
     if not start_date or not end_date:
@@ -99,15 +102,19 @@ def check_availability():
         return jsonify({"error": "farm_id is required"}), 400
     
     userFarmDao = UserFarmDao(db)
-    userfarms = userFarmDao.get_userfarm_by_farmid(farm_id).get_json()
-
+    result = userFarmDao.get_userfarm_by_farmid(farm_id)
+    if result[1] != 200:
+        return jsonify({"error": result[0].json["error"]}), result[1]
+    
+    
+    userfarms = result[0].get_json()
     for userfarm in userfarms:
         booked_start_date = datetime.strptime(userfarm["start_date"], "%Y-%m-%d").date()
         booked_end_date = datetime.strptime(userfarm["end_date"], "%Y-%m-%d").date()
 
         if (start_date < booked_start_date and end_date >= booked_start_date) or (start_date >= booked_start_date and start_date <= booked_end_date):
             return jsonify({"available": False}), 200
-        
+    
     return jsonify({"available": True}), 200
 
 @app.route("/farm/book", methods=["POST"])
