@@ -146,7 +146,7 @@ def book_farm():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
-    return jsonify({"message": "Farm booked successfully"}), 200
+    return jsonify({"message": "Farm {farm_id} booked from {start_date} to {end_date}"}), 200
 
 @app.route("/farm/rate", methods=["POST"])
 def rate_farm():
