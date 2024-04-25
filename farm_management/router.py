@@ -48,13 +48,13 @@ def insert_userfarm():
 @app.route("/farm/list", methods=["GET"])
 def list_farms():
     print("List of farms")
-    # print(request.json)
+    print(request)
     
     farmDao = FarmDao(db)
     
     farmlist = farmDao.list_farms()
 
-    # print(farmlist)
+    print(farmlist)
 
     return farmlist
 
@@ -84,6 +84,8 @@ def list_userfarms():
 @app.route("/farm/check_availability", methods=["GET"])
 def check_availability():
     print("Check availability")
+    print(request.args)
+    print(request.args.get("start_date"))
     start_date_str = request.args.get("start_date")
     end_date_str = request.args.get("end_date")
     farm_id = request.args.get("farm_id")

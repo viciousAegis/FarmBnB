@@ -6,13 +6,27 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+def create_query_string(url, args):
+    # args is an immutable dictionary
+    query_string = ""
+    for key, value in args.items():
+        query_string += f"{key}={value}&"
+    query_string = query_string[:-1]  # remove the last '&'
+    return f"{url}?{query_string}"
 
 @app.route("/farm/<path:subpath>", methods=["GET", "POST"])
 def run_farm(subpath):
     print("starting farm server")
     farm_port = 5001
-
-    farm_process = subprocess.Popen(["python3", "farm_management/router.py"])
+    
+    # check if its already running
+    try:
+        farm_health_url = f"http://127.0.0.1:{farm_port}/health"
+        response = requests.get(farm_health_url)
+        if response.text == "OK":
+            pass
+    except requests.ConnectionError:
+        farm_process = subprocess.Popen(["python3", "farm_management/router.py"])
 
     # Check if the server is running by making a request to the health check endpoint
     farm_health_url = f"http://127.0.0.1:{farm_port}/health"
@@ -29,6 +43,9 @@ def run_farm(subpath):
 
     # check method type
     if request.method == "GET":
+        if request.args:
+            farm_url = create_query_string(farm_url, request.args)
+        print(farm_url)
         farm_response = requests.get(farm_url, headers=request.headers)
     elif request.method == "POST":
         farm_response = requests.post(
@@ -36,8 +53,8 @@ def run_farm(subpath):
         )
 
     # terminate the farm server
-    farm_process.terminate()
-    print("closing farm server")
+    # farm_process.terminate()
+    # print("closing farm server")
 
     return farm_response.json()
 
@@ -63,7 +80,7 @@ def run_user(subpath):
     print("user server is running")
     user_url = f"http://localhost:{user_port}/user/{subpath}"
     if request.method == "GET":
-        user_response = requests.get(user_url, headers=request.headers)
+        user_response = requests.get(user_url, json=request.json, headers=request.headers)
     elif request.method == "POST":
         user_response = requests.post(
             user_url, json=request.json, headers=request.headers
@@ -97,7 +114,7 @@ def run_payment(subpath):
     print("payment server is running")
     payment_url = f"http://localhost:{payment_port}/pay/{subpath}"
     if request.method == "GET":
-        payment_response = requests.get(payment_url, headers=request.headers)
+        payment_response = requests.get(payment_url, json=request.json, headers=request.headers)
     elif request.method == "POST":
         payment_response = requests.post(
             payment_url, json=request.json, headers=request.headers
