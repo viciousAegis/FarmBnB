@@ -65,6 +65,14 @@ def notify():
         return jsonify({"message": str(e)}), 400
     return jsonify({"message": "Notification sent successfully"}), 200
 
+@app.route("/subscription/getsubscriptions", methods=["GET"])
+def get_subscriptions():
+    user_id = request.args.get("user_id")
+    try:
+        subscriptions = SubscriptionManager.getSubscriptionsByUser(user_id)
+    except Exception as e:
+        return jsonify({"message": str(e)}), 400
+    return jsonify(subscriptions), 200
 
 
 if __name__ == "__main__":
