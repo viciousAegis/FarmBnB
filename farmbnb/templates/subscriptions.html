@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscribed Farms</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body onLoad="check()">
+    <div class="logo-small">
+        <img src="{{ url_for('static', filename='images/farmbnb_logo.png') }}" alt="FarmBnB Logo">
+    </div>
+    <nav class="navbar">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a href="/farms">Farms</a></li>
+            <li class="nav-item"><a href="/subscriptions">Subscriptions</a></li>
+            <li class="nav-item"><a href="/bookings">Bookings</a></li>
+            <li class="nav-item"><a href="/profile">Profile</a></li>
+        </ul>
+    </nav>
+
+    <header class="header">
+        <h1>Subscribed Farms</h1>
+    </header>
+
+    <div class="card">
+        <div class="farm-grid" id="subscriptions-container">
+          
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userId = localStorage.getItem('user');
+            const BASE_URL = "http://127.0.0.1:5000"
+    
+            fetch(`${BASE_URL}` + `/subscription/getsubscriptions?user_id=${userId}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displaySubscribedFarms(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching subscribed farms:', error);
+                });
+        });
+
+        function displaySubscribedFarms(subscriptions) {
+            const user = localStorage.getItem('user');
+            const subscriptionsContainer = document.getElementById('subscriptions-container');
+
+            // Clear any existing content
+            subscriptionsContainer.innerHTML = '';
+
+            // Loop through the subscriptions and fetch farm details for each subscribed farm
+            subscriptions.forEach(farmId => {
+                // Fetch farm details for the subscribed farm from the server
+                fetch(`${BASE_URL}/farm/${farmId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(farmData => {
+                        const farmCard = document.createElement('div');
+                        farmCard.classList.add('farm-card');
+                        farmCard.innerHTML = `
+                            <img src="{{ url_for('static', filename='images/farm_placeholder.png') }}" alt="Farm Image">
+                            <div class="farm-details">
+                                <h2>${farmData.name}</h2>
+                                <p>${farmData.description}</p>
+                                <p>Price: ₹${farmData.price}/night</p>
+                                <a href="/farms/${farmData.farm_id}">View Farm</a><br><br>
+                                <button onclick="unsubscribe(farmData.farm_id, user)">Unsubscribe</button>
+                            </div>
+                        `;
+                        subscriptionsContainer.appendChild(farmCard);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching farm details:', error);
+                    });
+            });
+        }
+
+        function check() {
+            user = localStorage.getItem('user');
+            if (!user) {
+                window.location.href = '/';
+            }
+        }
+
+        function unsubscribe(farmId, user) {
+            fetch(`${BASE_URL}/subscription/unsubscribe`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: user,
+                    farm_id: farmId
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data.message);
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error unsubscribing:', error);
+                });
+        }
+    </script>
+</body>
+</html>

@@ -155,11 +155,11 @@ a:hover {
 }
 
 a {
-    color: #fff;
+    color: #007bff;
 }
 
 a:hover {
-    color: #ddd;
+    text-decoration: underline;
 }
 
 .modal {
