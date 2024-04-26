@@ -63,8 +63,15 @@ def run_farm(subpath):
 def run_user(subpath):
     print("starting user server")
     user_port = 5004
-
-    user_process = subprocess.Popen(["python3.11", "user/router.py"])
+    
+    # check if its already running
+    try:
+        user_health_url = f"http://127.0.0.1:{user_port}/health"
+        response = requests.get(user_health_url)
+        if response.text == "OK":
+            pass
+    except requests.ConnectionError:
+        user_process = subprocess.Popen(["python3.11", "user/router.py"])
 
     # Check if the server is running by making a request to the health check endpoint
     user_health_url = f"http://127.0.0.1:{user_port}/health"
@@ -88,9 +95,9 @@ def run_user(subpath):
             user_url, json=request.json, headers=request.headers
         )
 
-    # terminate the user server
-    print("closing user server")
-    user_process.terminate()
+    # # terminate the user server
+    # print("closing user server")
+    # user_process.terminate()
 
     return user_response.json()
 
@@ -99,8 +106,15 @@ def run_user(subpath):
 def run_payment(subpath):
     print("starting payment server")
     payment_port = 5002
-
-    payment_process = subprocess.Popen(["python3.11", "payment/router.py"])
+    
+    # check if its already running
+    try:
+        payment_health_url = f"http://127.0.0.1:{payment_port}/health"
+        response = requests.get(payment_health_url)
+        if response.text == "OK":
+            pass
+    except requests.ConnectionError:
+        payment_process = subprocess.Popen(["python3.11", "payment/router.py"])
 
     # Check if the server is running by making a request to the health check endpoint
     payment_health_url = f"http://127.0.0.1:{payment_port}/health"
@@ -125,8 +139,8 @@ def run_payment(subpath):
         )
 
     # terminate the payment server
-    print("closing payment server")
-    payment_process.terminate()
+    # print("closing payment server")
+    # payment_process.terminate()
 
     return payment_response.json()
 
@@ -134,8 +148,15 @@ def run_payment(subpath):
 def run_subscription(subpath):
     print("starting subscription server")
     subscription_port = 5003
-
-    subscription_process = subprocess.Popen(["python3.11", "subscription/router.py"])
+    
+    # check if its already running
+    try:
+        subscription_health_url = f"http://127.0.0.1:{subscription_port}/subscription/health"
+        response = requests.get(subscription_health_url)
+        if response.text == "OK":
+            pass
+    except requests.ConnectionError:
+        subscription_process = subprocess.Popen(["python3.11", "subscription/router.py"])
 
     # Check if the server is running by making a request to the health check endpoint
     subscription_health_url = f"http://localhost:{subscription_port}/subscription/health"
@@ -161,11 +182,17 @@ def run_subscription(subpath):
         )
 
     # terminate the subscription server
-    print("closing subscription server")
-    subscription_process.terminate()
+    # print("closing subscription server")
+    # subscription_process.terminate()
 
     return subscription_response.json()
 
 
 if __name__ == "__main__":
     app.run(port=5000)  # port for the main server
+
+    # start all the servers
+    farm_process = subprocess.Popen(["python3.11", "farm_management/router.py"])
+    payment_process = subprocess.Popen(["python3.11", "payment/router.py"])
+    subscription_process = subprocess.Popen(["python3.11", "subscription/router.py"])
+    user_process = subprocess.Popen(["python3.11", "user/router.py"])
