@@ -31,7 +31,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const userId = localStorage.getItem('user');
+            const userId = localStorage.getItem('user_email');
             const BASE_URL = "http://127.0.0.1:5003"
     
             fetch(`${BASE_URL}` + `/subscription/getsubscriptions?user_id=${userId}`)
@@ -42,7 +42,7 @@
                     return response.json();
                 })
                 .then(data => {
-                    displaySubscribedFarms(data);
+                    displaySubscribedFarms(data[1]);
                 })
                 .catch(error => {
                     console.error('Error fetching subscribed farms:', error);
@@ -58,6 +58,7 @@
 
             // Loop through the subscriptions and fetch farm details for each subscribed farm
             subscriptions.forEach(farmId => {
+                console.log(farmId);
                 // Fetch farm details for the subscribed farm from the server
                 fetch(`http://localhost:5000/farm/${farmId}`)
                     .then(response => {
@@ -95,13 +96,14 @@
         }
 
         function unsubscribe(farmId, user) {
+            user_email = localStorage.getItem('user_email');
             fetch(`http://localhost:5003/subscription/unsubscribe`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    user_id: user,
+                    user_email: user_email,
                     farm_id: farmId
                 })
             })

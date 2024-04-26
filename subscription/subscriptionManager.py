@@ -17,17 +17,17 @@ class SubscriptionManager():
         subscription = self.subscription_collection.find_one()
         print(subscription)
 
-    def addSubscription(self, farm_id, user_id):
-        print(f"Adding subscription for farm {farm_id} and user {user_id}")
+    def addSubscription(self, farm_id, user_email):
+        print(f"Adding subscription for farm {farm_id} and user {user_email}")
         
         if farm_id not in self.subscriptions:
             self.subscriptions[farm_id] = []
         else:
             # check if the user is already subscribed
-            if user_id in self.subscriptions[farm_id]:
+            if user_email in self.subscriptions[farm_id]:
                 raise Exception("User is already subscribed")
 
-        self.subscriptions[farm_id].append(user_id)
+        self.subscriptions[farm_id].append(user_email)
         print(self.subscriptions[farm_id])
 
         # update just the subscriptions key in the database
@@ -35,19 +35,19 @@ class SubscriptionManager():
 
         self.getSubscriptionsFromMongo()
 
-    def removeSubscription(self, farm_id, user_id):
+    def removeSubscription(self, farm_id, user_email):
         if farm_id in self.subscriptions:
-            self.subscriptions[farm_id].remove(user_id)
+            self.subscriptions[farm_id].remove(user_email)
         
         # update the database
         self.subscription_collection.update_one({}, {"$set": {"subscriptions": self.subscriptions}}, upsert=True)
 
         self.getSubscriptionsFromMongo()
 
-    def getSubscriptionsByUser(self, user_id):
+    def getSubscriptionsByUser(self, user_email):
         subscriptions = []
         for farm_id, users in self.subscriptions.items():
-            if user_id in users:
+            if user_email in users:
                 subscriptions.append(farm_id)
         return subscriptions
 
@@ -59,7 +59,9 @@ class SubscriptionManager():
     def getSubscriptions(self):
         return self.subscriptions
     
-    def notifySubscribers(self, user_emails, message):
+    def notifySubscribers(self, farm_id, message):
+        user_emails = self.getSubscriptionsByFarm(farm_id)
+
         for user_email in user_emails:
             self.emailManager.send_email(user_email, message)
             

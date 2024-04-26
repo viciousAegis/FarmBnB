@@ -257,6 +257,27 @@
                                     body: JSON.stringify(requestData)
                                 }).then(data => {
                                     alert('Farm booked successfully');
+
+                                    fetch(`${BASE_URL}/subscription/notify`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            farm_id: farmId,
+                                            message: `Farm ${farmId} has been booked from ${startDate} to ${endDate}`
+                                        })
+                                    }).then(data => {
+                                        if (!data.ok) {
+                                            throw new Error('Network response was not ok');
+                                        }
+                                        else{
+                                            alert('Notification sent successfully');
+                                        }
+                                    }).catch(error => {
+                                        console.error('Error sending notification:', error);
+                                    });
+
                                     window.location.href = '/bookings';
                                 })
                                     .catch(error => {
@@ -280,14 +301,15 @@
 
     document.getElementById('subscription').addEventListener('click', subscribe);
     function subscribe() {
-        const user = localStorage.getItem('user');
+        const user_email = localStorage.getItem('user_email');
+
         fetch(BASE_URL + '/subscription/subscribe', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                user_id: user,
+                user_email: user_email,
                 farm_id: farmId
             })
         })

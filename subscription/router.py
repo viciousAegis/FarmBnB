@@ -43,9 +43,9 @@ def get_subscribers():
 @app.route("/subscription/subscribe", methods=["POST"])
 def subscribe():
     farm_id = request.json.get("farm_id")
-    user_id = request.json.get("user_id")
+    user_email = request.json.get("user_email")
     try:
-        SubscriptionManager.addSubscription(farm_id, user_id)
+        SubscriptionManager.addSubscription(farm_id, user_email)
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
     return jsonify({"status": "success", "message": "Subscribed successfully"})
@@ -53,19 +53,20 @@ def subscribe():
 @app.route("/subscription/unsubscribe", methods=["POST"])
 def unsubscribe():
     farm_id = request.json.get("farm_id")
-    user_id = request.json.get("user_id")
+    user_email = request.json.get("user_email")
     try:
-        SubscriptionManager.removeSubscription(farm_id, user_id)
+        SubscriptionManager.removeSubscription(farm_id, user_email)
     except Exception as e:
         return jsonify({"status": "success", "message": str(e)})
     return jsonify({"status": "error", "message": "Unsubscribed successfully"})
 
 @app.route("/subscription/notify", methods=["POST"])
 def notify():
-    user_emails = request.json.get("user_emails")
+    farm_id = request.json.get("farm_id")
     message = request.json.get("message")
+
     try:
-        SubscriptionManager.notifySubscribers(user_emails, message)
+        SubscriptionManager.notifySubscribers(farm_id, message)
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
     return jsonify({"status": "success","message": "Notification sent successfully"})

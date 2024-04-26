@@ -12,7 +12,7 @@ class EmailManager():
         msg = MIMEMultipart()
         msg['From'] = self.sender_email
         msg['To'] = to_email
-        msg['Subject'] = "Your heart is being stolen from you!"
+        msg['Subject'] = "Your farm is being stolen from you!"
 
         # Attach the message body
         msg.attach(MIMEText(message, 'plain'))
