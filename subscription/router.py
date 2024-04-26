@@ -19,11 +19,12 @@ try:
     db = client.farmbnb
     farm_collection = db.farm
     userfarm_collection = db.user_farm
+    subscription_collection = db.subscriptions
     print("Connected to MongoDB")
 except Exception as e:
     print(f"Failed to connect to MongoDB: {e}")
 
-SubscriptionManager = SubscriptionManager()
+SubscriptionManager = SubscriptionManager(subscription_collection)
 
 @app.route("/subscription/getsubscribers", methods=["GET"])
 def get_subscribers():
@@ -63,6 +64,7 @@ def notify():
     except Exception as e:
         return jsonify({"message": str(e)}), 400
     return jsonify({"message": "Notification sent successfully"}), 200
+
 
 
 if __name__ == "__main__":

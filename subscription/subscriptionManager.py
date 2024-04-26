@@ -1,10 +1,22 @@
 from emailManager import EmailManager
 
 class SubscriptionManager():
-    def __init__(self):
-        self.subscriptions = {}
+    def __init__(self, subscription_collection):
         self.emailManager = EmailManager()
-    
+        self.subscription_collection = subscription_collection
+        # try to get the subscriptions from the database
+        self.subscriptions = {}
+        subscription = self.subscription_collection.find_one()
+        print(subscription)
+        if subscription is not None:
+            self.subscriptions = subscription.get("subscriptions", {})
+        else:
+            self.subscription_collection.insert_one({"subscriptions": {}})
+
+    def getSubscriptionsFromMongo(self):
+        subscription = self.subscription_collection.find_one()
+        print(subscription)
+
     def addSubscription(self, farm_id, user_id):
         print(f"Adding subscription for farm {farm_id} and user {user_id}")
         if farm_id not in self.subscriptions:
@@ -12,9 +24,19 @@ class SubscriptionManager():
         self.subscriptions[farm_id].append(user_id)
         print(self.subscriptions[farm_id])
 
+        # update just the subscriptions key in the database
+        self.subscription_collection.update_one({}, {"$set": {"subscriptions": self.subscriptions}}, upsert=True)
+
+        self.getSubscriptionsFromMongo()
+
     def removeSubscription(self, farm_id, user_id):
         if farm_id in self.subscriptions:
             self.subscriptions[farm_id].remove(user_id)
+        
+        # update the database
+        self.subscription_collection.update_one({}, {"$set": {"subscriptions": self.subscriptions}}, upsert=True)
+
+        self.getSubscriptionsFromMongo()
 
     def getSubscriptionsByUser(self, user_id):
         subscriptions = []
