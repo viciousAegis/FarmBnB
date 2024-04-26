@@ -21,7 +21,7 @@ def get_next_date(date):
     next_date = date_obj + timedelta(days=1)
     return next_date.strftime("%Y-%m-%d")
 
-def book_farm(const):
+def book_farm():
     user = "ug85hjds9"
     farm_id = "2"
     # get random start date
@@ -49,10 +49,6 @@ def book_farm(const):
     booking_status = book_farm_request(user, farm_id, start_date, end_date, total_price)
     if booking_status != "success":
         return {"error": "Error booking farm"}, 500
-
-    notification_status = send_notification(farm_id, start_date, end_date)
-    if notification_status != "success":
-        return {"error": "Error sending notification"}, 500
 
     return {"message": "Farm booked successfully"}, 200
 
@@ -122,9 +118,9 @@ def concurrent_test():
 
     # Function to make requests
     def make_request():
-        res, code, elapsed_time = list_farms()
+        res, code = book_farm()
         print(res, code)
-        return elapsed_time
+        return res, code
 
     # Send concurrent requests
     with ThreadPoolExecutor(max_workers=NUM_REQUESTS) as executor:
