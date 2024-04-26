@@ -1,16 +1,35 @@
 
 
+from concurrent.futures import ThreadPoolExecutor
 from flask import jsonify
 import requests
 from time import time
+from random import randint
+from datetime import datetime, timedelta
 
 BASE_URL = "http://127.0.0.1:5000"
+
+def get_random_date():
+    year = randint(2022, 2025)
+    month = randint(1, 12)
+    day = randint(1, 28)
+    
+    return f"{year}-{month:02d}-{day:02d}"
+
+def get_next_date(date):
+    date_obj = datetime.strptime(date, "%Y-%m-%d")
+    next_date = date_obj + timedelta(days=1)
+    return next_date.strftime("%Y-%m-%d")
 
 def book_farm():
     user = "ug85hjds9"
     farm_id = "2"
-    start_date = "2025-04-28"  # Example date, replace with actual date
-    end_date = "2025-04-29"    # Example date, replace with actual date
+    # get random start date
+
+    start_date = get_random_date()  # Example date, replace with actual date
+    # book for 2 days
+    end_date = get_next_date(start_date)  # Example date, replace with actual date
+    
     total_price = 1  # Example price, replace with actual price
 
     if not start_date or not end_date:
@@ -30,10 +49,6 @@ def book_farm():
     booking_status = book_farm_request(user, farm_id, start_date, end_date, total_price)
     if booking_status != "success":
         return {"error": "Error booking farm"}, 500
-
-    notification_status = send_notification(farm_id, start_date, end_date)
-    if notification_status != "success":
-        return {"error": "Error sending notification"}, 500
 
     return {"message": "Farm booked successfully"}, 200
 
@@ -85,9 +100,52 @@ def send_notification(farm_id, start_date, end_date):
         return "success"
     else:
         return None
+
+def list_farms():
+    start_time = time()
+    response = requests.get(f"{BASE_URL}/farm/list")
+    elapsed_time = time() - start_time
+    if response.ok:
+        data = response.json()
+        code = response.status_code
+        return data, code, elapsed_time
+    else:
+        return None, response.status_code, elapsed_time
+
+def concurrent_test():
+    st = time()
+    NUM_REQUESTS = 100  # Number of concurrent requests to send
+
+    # Function to make requests
+    def make_request():
+        res, code = book_farm()
+        print(res, code)
+        return res, code
+
+    # Send concurrent requests
+    with ThreadPoolExecutor(max_workers=NUM_REQUESTS) as executor:
+        futures = [executor.submit(make_request) for _ in range(NUM_REQUESTS)]
+
+    # Wait for all futures to complete
+    for future in futures:
+        future.result()
+
+    total_elapsed_time = time() - st
+    
+    # Calculate throughput
+    total_requests = NUM_REQUESTS
+    throughput = total_requests / total_elapsed_time
+    print("Throughput:", throughput, "requests/second")
+    print("Total Time taken:", total_elapsed_time)
+    print("Average Response Time:", total_elapsed_time / total_requests)
+
+def normal_test():
+    st = time()
+    res, code, elapsed_time = list_farms()
+    print(res, code)
+    total_elapsed_time = time() - st
+    print("Total Time taken:", total_elapsed_time)
     
 if __name__ == "__main__":
-    st = time()
-    res, code = book_farm()
-    print(res, code)
-    print("Time taken:", time()-st)
+    # normal_test()
+    concurrent_test()
