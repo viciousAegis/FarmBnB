@@ -51,3 +51,25 @@ class UserFarmDao():
             return jsonify(userfarms), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+        
+    def rate_userfarm(self, id, user_id, farm_id, rating):
+        try:
+
+            # print("id", id)
+            print("ObjectId(id)", ObjectId(id))
+
+            # a = self.userfarm_collection.find_one({"_id": id})
+            # print("a", a)
+
+            b = self.userfarm_collection.find({"_id": ObjectId(id)})
+            print("b", b)
+
+
+            result = self.userfarm_collection.update_one({"_id": ObjectId(id)}, {"$set": {"rating": rating}})
+            print(result)
+
+            if result.modified_count == 0:
+                return jsonify({"error": "UserFarm not found"}), 404
+            return jsonify({"message": "UserFarm rated successfully"}), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500

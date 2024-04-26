@@ -69,13 +69,15 @@ def get_farm(id):
 
 @app.route("/farm/listuserfarm", methods=["GET"])
 def list_userfarms():
+    user_id = request.args.get("user_id")
     print("List of user farms")
     # print(request.json)
-    insert_userfarm()
+    # insert_userfarm()
     
     userfarmDao = UserFarmDao(db)
     
-    userfarmlist = userfarmDao.list_userfarms()
+    # userfarmlist = userfarmDao.list_userfarms(user_id)
+    userfarmlist = userfarmDao.get_userfarm_by_userid(user_id)
 
     # print(userfarmlist)
 
@@ -151,6 +153,7 @@ def book_farm():
 @app.route("/farm/rate", methods=["POST"])
 def rate_farm():
     print("Rate farm")
+    id = request.json.get("_id") 
     user_id = request.json.get("user_id")
     farm_id = request.json.get("farm_id")
     rating = request.json.get("rating")
@@ -164,7 +167,12 @@ def rate_farm():
         return jsonify({"error": result[0].json["error"]}), result[1]
     print("after")
 
-    # userFarmDao.rate_userfarm(user_id, farm_id, rating)
+    print("checking for rate userfarm")
+    userFarmDao = UserFarmDao(db)
+    result = userFarmDao.rate_userfarm(id, user_id, farm_id, rating)
+    print(result)
+    if result[1] != 200:
+        return jsonify({"error": result[0].json["error"]}), result[1]
 
     return jsonify({"message": "Farm rated successfully"}), 200
     
