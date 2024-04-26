@@ -26,7 +26,7 @@ def run_farm(subpath):
         if response.text == "OK":
             pass
     except requests.ConnectionError:
-        farm_process = subprocess.Popen(["python3", "farm_management/router.py"])
+        farm_process = subprocess.Popen(["python3.11", "farm_management/router.py"])
 
     # Check if the server is running by making a request to the health check endpoint
     farm_health_url = f"http://127.0.0.1:{farm_port}/health"
@@ -64,7 +64,7 @@ def run_user(subpath):
     print("starting user server")
     user_port = 5004
 
-    user_process = subprocess.Popen(["python3", "user/router.py"])
+    user_process = subprocess.Popen(["python3.11", "user/router.py"])
 
     # Check if the server is running by making a request to the health check endpoint
     user_health_url = f"http://127.0.0.1:{user_port}/health"
@@ -100,7 +100,7 @@ def run_payment(subpath):
     print("starting payment server")
     payment_port = 5002
 
-    payment_process = subprocess.Popen(["python3", "payment/router.py"])
+    payment_process = subprocess.Popen(["python3.11", "payment/router.py"])
 
     # Check if the server is running by making a request to the health check endpoint
     payment_health_url = f"http://127.0.0.1:{payment_port}/health"
@@ -129,6 +129,41 @@ def run_payment(subpath):
     payment_process.terminate()
 
     return payment_response.json()
+
+@app.route("/subscription/<path:subpath>", methods=["GET", "POST"])
+def run_subscription(subpath):
+    print("starting subscription server")
+    subscription_port = 5003
+
+    subscription_process = subprocess.Popen(["python3.11", "subscription/router.py"])
+
+    # Check if the server is running by making a request to the health check endpoint
+    subscription_health_url = f"http://localhost:{subscription_port}/subscription/health"
+    while True:
+        try:
+            response = requests.get(subscription_health_url)
+            print(response.text)
+            if response.text == "OK":
+                break  # Server is up and running
+        except requests.ConnectionError:
+            pass
+    
+    print("subscription server is running")
+    subscription_url = f"http://localhost:{subscription_port}/subscription/{subpath}"
+    if request.method == "GET":
+        if request.args:
+            subscription_url = create_query_string(subscription_url, request.args)
+        subscription_response = requests.get(subscription_url, json=request.json, headers=request.headers)
+    elif request.method == "POST":
+        subscription_response = requests.post(
+            subscription_url, json=request.json, headers=request.headers
+        )
+
+    # terminate the subscription server
+    print("closing subscription server")
+    subscription_process.terminate()
+
+    return subscription_response.json()
 
 
 if __name__ == "__main__":

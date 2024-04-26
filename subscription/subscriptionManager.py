@@ -19,8 +19,14 @@ class SubscriptionManager():
 
     def addSubscription(self, farm_id, user_id):
         print(f"Adding subscription for farm {farm_id} and user {user_id}")
+        
         if farm_id not in self.subscriptions:
             self.subscriptions[farm_id] = []
+        else:
+            # check if the user is already subscribed
+            if user_id in self.subscriptions[farm_id]:
+                raise Exception("User is already subscribed")
+
         self.subscriptions[farm_id].append(user_id)
         print(self.subscriptions[farm_id])
 

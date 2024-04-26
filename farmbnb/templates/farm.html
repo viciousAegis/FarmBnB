@@ -43,6 +43,7 @@
             <input type="date" id="end-date">
             <p>Total Price: <span id="total-price">₹0</span></p>
             <button id="check-availability">Check Availability</button>
+            <button id="subscription">Subscribe</button>
         </div>
     </div>
 </body>
@@ -265,6 +266,39 @@
         })
             .catch(error => {
                 console.error('Error booking farm:', error);
+            });
+    }
+
+    document.getElementById('subscription').addEventListener('click', subscribe);
+    function subscribe() {
+        const user = localStorage.getItem('user');
+        fetch(BASE_URL + '/subscription/subscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: user,
+                farm_id: farmId
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Subscribed successfully');
+                    window.location.href = '/subscriptions';
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error subscribing:', error);
+                alert('Error occurred while subscribing');
             });
     }
 

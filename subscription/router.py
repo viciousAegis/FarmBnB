@@ -26,14 +26,19 @@ except Exception as e:
 
 SubscriptionManager = SubscriptionManager(subscription_collection)
 
+@app.route("/subscription/health", methods=["GET"])
+def health_check():
+    return "OK"
+
 @app.route("/subscription/getsubscribers", methods=["GET"])
 def get_subscribers():
     farm_id = request.args.get("farm_id")
     try:
         subscribers = SubscriptionManager.getSubscriptionsByFarm(farm_id)
     except Exception as e:
-        return jsonify({"message": str(e)}), 400
-    return jsonify(subscribers), 200
+        return jsonify({"status": "error", "message": str(e)})
+    # add status code
+    return jsonify({"status": "success"}, subscribers)
 
 @app.route("/subscription/subscribe", methods=["POST"])
 def subscribe():
@@ -42,8 +47,8 @@ def subscribe():
     try:
         SubscriptionManager.addSubscription(farm_id, user_id)
     except Exception as e:
-        return jsonify({"message": str(e)}), 400
-    return jsonify({"message": "Subscribed successfully"}), 200
+        return jsonify({"status": "error", "message": str(e)})
+    return jsonify({"status": "success", "message": "Subscribed successfully"})
 
 @app.route("/subscription/unsubscribe", methods=["POST"])
 def unsubscribe():
@@ -52,8 +57,8 @@ def unsubscribe():
     try:
         SubscriptionManager.removeSubscription(farm_id, user_id)
     except Exception as e:
-        return jsonify({"message": str(e)}), 400
-    return jsonify({"message": "Unsubscribed successfully"}), 200
+        return jsonify({"status": "success", "message": str(e)})
+    return jsonify({"status": "error", "message": "Unsubscribed successfully"})
 
 @app.route("/subscription/notify", methods=["POST"])
 def notify():
@@ -62,8 +67,8 @@ def notify():
     try:
         SubscriptionManager.notifySubscribers(user_emails, message)
     except Exception as e:
-        return jsonify({"message": str(e)}), 400
-    return jsonify({"message": "Notification sent successfully"}), 200
+        return jsonify({"status": "error", "message": str(e)})
+    return jsonify({"status": "success","message": "Notification sent successfully"})
 
 @app.route("/subscription/getsubscriptions", methods=["GET"])
 def get_subscriptions():
@@ -71,9 +76,8 @@ def get_subscriptions():
     try:
         subscriptions = SubscriptionManager.getSubscriptionsByUser(user_id)
     except Exception as e:
-        return jsonify({"message": str(e)}), 400
-    return jsonify(subscriptions), 200
-
+        return jsonify({"status": "error", "message": str(e)})
+    return jsonify({"status": "success"}, subscriptions)
 
 if __name__ == "__main__":
     app.run(port=5003)
