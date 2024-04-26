@@ -72,6 +72,7 @@ def notify():
 
 @app.route("/subscription/getsubscriptions", methods=["GET"])
 def get_subscriptions():
+    print("get subscriptions")
     user_id = request.args.get("user_id")
     try:
         subscriptions = SubscriptionManager.getSubscriptionsByUser(user_id)
