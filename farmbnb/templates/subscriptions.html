@@ -30,17 +30,11 @@
     </div>
 
     <script>
-        const BASE_URL = "http://127.0.0.1:5000";
         document.addEventListener('DOMContentLoaded', () => {
             const userId = localStorage.getItem('user');
+            const BASE_URL = "http://127.0.0.1:5003"
     
-            fetch(`${BASE_URL}` + `/subscription/getsubscriptions?user_id=${userId}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
+            fetch(`${BASE_URL}` + `/subscription/getsubscriptions?user_id=${userId}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -48,7 +42,6 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log(data);
                     displaySubscribedFarms(data);
                 })
                 .catch(error => {
@@ -64,9 +57,9 @@
             subscriptionsContainer.innerHTML = '';
 
             // Loop through the subscriptions and fetch farm details for each subscribed farm
-            subscriptions[1].forEach(farmId => {
+            subscriptions.forEach(farmId => {
                 // Fetch farm details for the subscribed farm from the server
-                fetch(`${BASE_URL}/farm/${farmId}`)
+                fetch(`http://localhost:5000/farm/${farmId}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
@@ -83,7 +76,7 @@
                                 <p>${farmData.description}</p>
                                 <p>Price: ₹${farmData.price}/night</p>
                                 <a href="/farms/${farmData.farm_id}">View Farm</a><br><br>
-                                <button onclick="unsubscribe('${farmData.farm_id}', '${user}')">Unsubscribe</button>
+                                <button onclick="unsubscribe(farmData.farm_id, user)">Unsubscribe</button>
                             </div>
                         `;
                         subscriptionsContainer.appendChild(farmCard);
@@ -102,7 +95,7 @@
         }
 
         function unsubscribe(farmId, user) {
-            fetch(`${BASE_URL}/subscription/unsubscribe`, {
+            fetch(`http://localhost:5003/subscription/unsubscribe`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
