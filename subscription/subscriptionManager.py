@@ -1,4 +1,4 @@
-from emailManager import EmailManager
+from subscription.emailManager import EmailManager
 
 class SubscriptionManager():
     def __init__(self, subscription_collection):

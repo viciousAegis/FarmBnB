@@ -302,7 +302,7 @@
     document.getElementById('subscription').addEventListener('click', subscribe);
     function subscribe() {
         const user_email = localStorage.getItem('user_email');
-
+        alert(user_email);
         fetch(BASE_URL + '/subscription/subscribe', {
             method: 'POST',
             headers: {

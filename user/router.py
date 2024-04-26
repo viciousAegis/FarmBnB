@@ -4,7 +4,7 @@ from pymongo import MongoClient
 import bcrypt
 import os
 from dotenv import load_dotenv
-from handlers import LengthValidationHandler, AlphanumericValidationHandler, EmailValidationHandler, ValidationException
+from user.handlers import LengthValidationHandler, AlphanumericValidationHandler, EmailValidationHandler, ValidationException
 from bson import ObjectId
 from flask_cors import CORS
 

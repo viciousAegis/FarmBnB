@@ -1,4 +1,4 @@
-from paymentDao import PaymentDao
+from payment.paymentDao import PaymentDao
 import os
 from dotenv import load_dotenv
 
