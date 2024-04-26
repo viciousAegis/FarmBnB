@@ -83,8 +83,8 @@
             <label for="upi-id">Enter UPI ID:</label>
             <input type="text" id="upi-id" name="upi-id" placeholder="Your UPI ID">
             <label for="amount">Topup amount:</label>
-            <input type="number" id="amount" name="amount" placeholder="5000">
-            <input type="submit" value="Submit">
+            <input type="number" id="amount_upi" name="amount" placeholder="5000">
+            <input type="submit" id="upi-submit" value="Submit">
         </form>
 
         <form id="credit-card-form" class="payment-form">
@@ -95,7 +95,7 @@
             <label for="cvv">CVV:</label>
             <input type="number" id="cvv" name="cvv" placeholder="123">
             <label for="amount">Topup amount:</label>
-            <input type="number" id="amount" name="amount" placeholder="5000">
+            <input type="number" id="amount_cc" name="amount" placeholder="5000">
             <input type="submit" value="Submit">
         </form>
     </div>
@@ -106,7 +106,8 @@
         const upiRadio = document.getElementById('upi');
         const creditCardRadio = document.getElementById('credit-card');
         const userId = localStorage.getItem('user');
-        const submitButton = document.querySelector('input[type="submit"]');
+        const submitButtonCC = document.querySelector('#credit-card-form input[type="submit"]');
+        const submitButtonUPI = document.querySelector('#upi-form input[type="submit"]');
 
         upiRadio.addEventListener('change', () => {
             upiForm.classList.add('active');
@@ -125,30 +126,29 @@
             }
         }
 
-        submitButton.addEventListener('click', (event) => {
+        submitButtonUPI.addEventListener('click', (event) => {
+            console.log('submitting form')
             event.preventDefault();
             const upiId = document.getElementById('upi-id').value;
             const cardNumber = document.getElementById('card-number').value;
             const cvv = document.getElementById('cvv').value;
-            const amount = document.getElementById('amount').value;
+            const amount = document.getElementById('amount_upi').value;
             const urlParams = new URLSearchParams(window.location.search);
             const userId = localStorage.getItem('user');
             const totalPrice = urlParams.get('totalPrice');
-            var payment_method = '';
-            if(upiForm.classList.contains('active')) {
-                payment_method = 'upi';
-            } else {
-                payment_method = 'credit-card';
-            }
+            var payment_method = 'upi';
+            var payment_info = upiId;
 
-                fetch('http://localhost:5002/pay/book', {
+            console.log("Payment method: " + payment_method)
+
+                fetch('http://localhost:5000/pay/book', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         user_id: userId,
-                        payment_info: upiId,
+                        payment_info: payment_info,
                         total_price: totalPrice,
                         payment_method: payment_method,
                         amount: amount
@@ -156,8 +156,59 @@
                 })
                 .then(response => {
                     if (response.ok) {
-                        alert('Topup successful! Booked farm successfully!');
-                        window.location.href = '/bookings';
+                        alert('Topup successful!');
+                        window.location.href = '/farms';
+                    } else {
+                        response.json().then(data => {
+                            alert('Error: ' + data.message);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error: ' + error.message);
+                });
+        });
+
+        submitButtonCC.addEventListener('click', (event) => {
+            console.log('submitting form')
+            event.preventDefault();
+            const upiId = document.getElementById('upi-id').value;
+            const cardNumber = document.getElementById('card-number').value;
+            const cvv = document.getElementById('cvv').value;
+            const amount = document.getElementById('amount_cc').value;
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = localStorage.getItem('user');
+            const totalPrice = urlParams.get('totalPrice');
+            var payment_method = '';
+            var payment_info = '';
+            if(upiForm.classList.contains('active')) {
+                payment_method = 'card';
+                payment_info = cardNumber;
+            } else {
+                payment_method = 'card';
+                payment_info = cardNumber;
+            }
+
+            console.log("Payment method: " + payment_method)
+
+                fetch('http://localhost:5000/pay/book', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        payment_info: payment_info,
+                        total_price: totalPrice,
+                        payment_method: payment_method,
+                        amount: amount
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Topup successful!');
+                        window.location.href = '/farms';
                     } else {
                         response.json().then(data => {
                             alert('Error: ' + data.message);

@@ -127,28 +127,29 @@
     function checkAvailability() {
         const availabilityButton = document.getElementById('check-availability');
         if (availabilityButton.textContent === 'Book') {
+            console.log("Booking farm")
             bookFarm();
             return;
         }
         const startDate = document.getElementById('start-date').value;
         const endDate = document.getElementById('end-date').value;
-        const farmId = "{{ farm_id }}"; 
+        const farmId = "{{ farm_id }}";
 
         if (!startDate || !endDate) {
             alert('Please select start and end dates to check availability');
             return;
-        } else if(startDate > endDate) {
+        } else if (startDate > endDate) {
             alert('End date should be after start date');
             return;
-        } else if(startDate < new Date().toISOString().split('T')[0]) {
+        } else if (startDate < new Date().toISOString().split('T')[0]) {
             alert('Start date should be after today');
             return;
-        } else if(endDate < new Date().toISOString().split('T')[0]) {
+        } else if (endDate < new Date().toISOString().split('T')[0]) {
             alert('End date should be after today');
             return;
         }
 
-        
+
         const requestData = {
             farm_id: farmId,
             start_date: startDate,
@@ -188,85 +189,92 @@
     function bookFarm() {
         const user = localStorage.getItem('user');
         fetch(`${BASE_URL}/user/profile?id=${user}`, {
-            method: 'GET', 
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            }})
+            }
+        })
             .then(user => {
-                wallet_balance = user.wallet_balance;
+                if (!user.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                console.log("User:", user);
+                return user.json();
+            })
+            .then(data => {
+                wallet_balance = data.wallet_balance;
+                console.log(wallet_balance);
+
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+                const farmId = "{{ farm_id }}";
+
+                if (!startDate || !endDate) {
+                    alert('Please select start and end dates to book');
+                    return;
+                }
+
+                console.log("Wallet Balance", wallet_balance);
+                console.log("Total Price", totalPrice);
+
+                if (wallet_balance < totalPrice) {
+                    window.location.href = '/topup?userId=' + user + '&totalPrice=' + totalPrice;
+                }
+                else {
+                    fetch(BASE_URL + '/pay/wallet', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            user_id: user,
+                            total_price: totalPrice
+                        })
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.status === 'success') {
+                                alert('Payment successful using wallet');
+
+                                const requestData = {
+                                    start_date: startDate,
+                                    end_date: endDate,
+                                    farm_id: farmId,
+                                    user_id: user,
+                                    total_price: totalPrice
+                                };
+
+                                fetch(`${BASE_URL}/farm/book`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify(requestData)
+                                }).then(data => {
+                                    alert('Farm booked successfully');
+                                    window.location.href = '/bookings';
+                                })
+                                    .catch(error => {
+                                        console.error('Error booking farm:', error);
+                                    });
+                            } else {
+                                alert(data.message);
+                                //window.location.href = '/topup';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error paying using wallet:', error);
+                            alert('Error occurred while processing payment');
+                        });
+                }
             })
             .catch(error => {
                 console.error('Error fetching user profile:', error);
-            });
-
-        
-        const startDate = document.getElementById('start-date').value;
-        const endDate = document.getElementById('end-date').value;
-        const farmId = "{{ farm_id }}"; 
-
-        if (!startDate || !endDate) {
-            alert('Please select start and end dates to book');
-            return;
-        }
-        
-        //console.log(wallet_balance);
-
-        if (wallet_balance < totalPrice) {
-            window.location.href = '/topup?userId=' + user + '&totalPrice=' + totalPrice;
-        }
-        else {
-            fetch(BASE_URL + '/pay/wallet', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    user_id: user,
-                    total_price: totalPrice
-                })
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.status === 'success') {
-                        
-                        alert('Payment successful using wallet');
-                        window.location.href = '/bookings';
-                    } else {
-                        alert(data.message);
-                        //window.location.href = '/topup';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error paying using wallet:', error);
-                    alert('Error occurred while processing payment');
-                });
-        }
-
-        const requestData = {
-            start_date: startDate,
-            end_date: endDate,
-            farm_id: farmId,
-            user_id: user,
-            total_price: totalPrice
-        };
-
-        fetch(`${BASE_URL}/farm/book`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestData)
-        }).then(data => {
-            alert('Farm booked successfully');
-            window.location.href = '/bookings';
-        })
-            .catch(error => {
-                console.error('Error booking farm:', error);
             });
     }
 

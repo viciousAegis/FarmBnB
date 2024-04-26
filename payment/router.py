@@ -47,6 +47,7 @@ def process_payment_and_book():
 
 @app.route('/pay/wallet', methods=['POST'])
 def pay_using_wallet():
+    print("paying using wallet")
     data = request.json
     user_id = data.get("user_id")
     total_price = int(data.get("total_price"))
@@ -57,12 +58,8 @@ def pay_using_wallet():
     if user["wallet_balance"] < total_price:
         return jsonify({"status": "error", "message": "Insufficient balance"})
     
-    payment_dao.update_wallet_balance(user_id, -total_price)
+    payment_dao.decrease_wallet_balance(user_id, -1*total_price)
     return jsonify({"status": "success", "message": "Payment successful using wallet"})
-
-@app.route('/health')
-def health_check():
-    return "OK"
 
 if __name__ == "__main__":
     app.run(debug=False, port=5002)

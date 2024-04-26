@@ -89,7 +89,7 @@ def run_user(subpath):
     if request.method == "GET":
         if request.args:
             user_url = create_query_string(user_url, request.args)
-        user_response = requests.get(user_url, json=request.json, headers=request.headers)
+        user_response = requests.get(user_url, headers=request.headers)
     elif request.method == "POST":
         user_response = requests.post(
             user_url, json=request.json, headers=request.headers
@@ -132,8 +132,9 @@ def run_payment(subpath):
     if request.method == "GET":
         if request.args:
             payment_url = create_query_string(payment_url, request.args)
-        payment_response = requests.get(payment_url, json=request.json, headers=request.headers)
+        payment_response = requests.get(payment_url, headers=request.headers)
     elif request.method == "POST":
+        print("main server", request.url)
         payment_response = requests.post(
             payment_url, json=request.json, headers=request.headers
         )
