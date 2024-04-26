@@ -26,7 +26,7 @@ def run_farm(subpath):
         if response.text == "OK":
             pass
     except requests.ConnectionError:
-        farm_process = subprocess.Popen(["python3.11", "farm_management/router.py"])
+        farm_process = subprocess.Popen(["python3", "farm_management/router.py"])
 
     # Check if the server is running by making a request to the health check endpoint
     farm_health_url = f"http://127.0.0.1:{farm_port}/health"
@@ -71,7 +71,7 @@ def run_user(subpath):
         if response.text == "OK":
             pass
     except requests.ConnectionError:
-        user_process = subprocess.Popen(["python3.11", "user/router.py"])
+        user_process = subprocess.Popen(["python3", "user/router.py"])
 
     # Check if the server is running by making a request to the health check endpoint
     user_health_url = f"http://127.0.0.1:{user_port}/health"
@@ -114,7 +114,7 @@ def run_payment(subpath):
         if response.text == "OK":
             pass
     except requests.ConnectionError:
-        payment_process = subprocess.Popen(["python3.11", "payment/router.py"])
+        payment_process = subprocess.Popen(["python3", "payment/router.py"])
 
     # Check if the server is running by making a request to the health check endpoint
     payment_health_url = f"http://127.0.0.1:{payment_port}/health"
@@ -157,7 +157,7 @@ def run_subscription(subpath):
         if response.text == "OK":
             pass
     except requests.ConnectionError:
-        subscription_process = subprocess.Popen(["python3.11", "subscription/router.py"])
+        subscription_process = subprocess.Popen(["python3", "subscription/router.py"])
 
     # Check if the server is running by making a request to the health check endpoint
     subscription_health_url = f"http://localhost:{subscription_port}/subscription/health"
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     app.run(port=5000)  # port for the main server
 
     # start all the servers
-    farm_process = subprocess.Popen(["python3.11", "farm_management/router.py"])
-    payment_process = subprocess.Popen(["python3.11", "payment/router.py"])
-    subscription_process = subprocess.Popen(["python3.11", "subscription/router.py"])
-    user_process = subprocess.Popen(["python3.11", "user/router.py"])
+    farm_process = subprocess.Popen(["python3", "farm_management/router.py"])
+    payment_process = subprocess.Popen(["python3", "payment/router.py"])
+    subscription_process = subprocess.Popen(["python3", "subscription/router.py"])
+    user_process = subprocess.Popen(["python3", "user/router.py"])
