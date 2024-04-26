@@ -32,7 +32,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const userId = localStorage.getItem('user_email');
-            const BASE_URL = "http://127.0.0.1:5003"
+            const BASE_URL = "http://127.0.0.1:5000"
     
             fetch(`${BASE_URL}` + `/subscription/getsubscriptions?user_id=${userId}`)
                 .then(response => {
@@ -97,7 +97,7 @@
 
         function unsubscribe(farmId, user) {
             user_email = localStorage.getItem('user_email');
-            fetch(`http://localhost:5003/subscription/unsubscribe`, {
+            fetch(`${BASE_URL}/subscription/unsubscribe`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
